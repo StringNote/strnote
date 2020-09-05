@@ -5,6 +5,7 @@
 		<link rel="icon" href="https://strnote.com/static/favicon.ico">
 		<title>StringNote Vanila Viewer - ver.2</title>
 		<script type="text/javascript" src="https://strnote.com/static/getNote.js"></script>
+		<script type="text/javascript" src="https://strnote.com/static/listUTC.js"></script>
 <style type="text/css">
 .hide {
 	display: none;
@@ -102,6 +103,46 @@
 	}
 </script>
 <script>
+	function listUID() {
+		let ret = [];
+		let notesjson = loadNotes();
+		if (!notesjson) {
+			notesjson = "[]"
+		}
+		let idso = JSON.parse(notesjson);
+		for (i in idso) {
+			let note = idso[i];
+			ret.push(note.id)
+		}
+		return ret;
+	}
+	function getUTCS() {
+		let utcs = {};
+		let uids = listUID();
+		for (i in uids) {
+			let uid = uids[i];
+			let utc = document.getElementById("div_" + uid).UTC;
+			utcs[uid] = utc;
+		}
+		return utcs;
+	}
+	function periodic() {
+		let utcs = getUTCS();
+		let uids = listUID();
+		listUTCPromise(uids)
+			.then(function (info, result) {
+				cutcs = JSON.parse(info.result)
+				Object.keys(cutcs).forEach(uid => {
+					let utc = utcs[uid];
+					let cutc = cutcs[uid];
+					if (utc!=cutc) {
+						refreshNote(uid);
+					}
+				});
+			}).catch(function (error) {
+				console.log(error);
+			});
+	}
 	function refreshNote(uid) {
 		getNotePromise(uid)
 		.then(function (info, result) {
@@ -112,6 +153,7 @@
 			let time = local2str(utc2local(res.utc));
 			document.getElementById("note_name_" + uid).innerText = name + " (" + time + ")";
 			document.getElementById("note_mes_" + uid).innerText = mes;
+			document.getElementById("div_" + uid).UTC = res.utc;
         }).catch(function (error) {
             console.log(error);
         });
@@ -122,6 +164,7 @@
 
 		let newDiv = document.createElement("tr");
 		newDiv.setAttribute("id", "div_" + id);
+		newDiv.UTC = "";
 
 		/** nickname */
 		let newname = document.createElement("td");
@@ -217,17 +260,22 @@
 			let newDiv = appendDiv(i, note);
 			notes.appendChild(newDiv);
 		}
+
+		/** periodic check */
+		setInterval(periodic, 5*60*1000);
 	}
 </script>
 	</head>
 	<body>
 		<p id="usage-ja">
 			このビューアはノートを参照するスクリプトのひな型です。<br/>
+			5分ごとに情報を取得して表示を更新します。<br/>
 			最低限な機能だけ実装したものなので、ローカルにダウンロードして自由に改造してください。<br/>
 			ライセンスはMITライセンスとします。<br/>
 		</p>
 		<p id="usage-en">
 			This viewer is a model of a script for referencing notes.<br/>
+			It retrieves information and updates the display every five minutes.<br/>
 			You can download it locally and modify it freely.<br/>
 			The license of this viewer is MIT license.<br/>
 		</p>
