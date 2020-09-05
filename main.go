@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 	"sync"
@@ -35,6 +36,8 @@ func main() {
 	// 取得 API
 	echoInst.GET("/api/v1/:uid", getAPI)
 	echoInst.GET("/api/v2/:uid", getAPI2)
+	// 更新時刻一覧 API
+	echoInst.POST("/api/v2/list", listAPI2)
 	// 更新 API
 	echoInst.POST("/api/v1/user", updateAPI)
 
@@ -95,6 +98,50 @@ func getAPI2(c echo.Context) error {
 	}
 	// 応答
 	return c.JSON(http.StatusOK, note)
+}
+
+// 更新時刻一覧 API
+func listAPI2(c echo.Context) error {
+	mu.Lock()
+	// リクエストしてきたリモート
+	requestIP := c.RealIP()
+	if b, ok := proccesing[requestIP]; ok && b {
+		mu.Unlock()
+		// 処理中にまた来た
+		// 不正なリクエストとしてエラー
+		mes := "processing"
+		logOutput(mes)
+		return c.String(http.StatusBadRequest, mes)
+	}
+	// → 処理中
+	proccesing[requestIP] = true
+	mu.Unlock()
+
+	defer func() {
+		mu.Lock()
+		// → 処理終了
+		proccesing[requestIP] = false
+		mu.Unlock()
+	}()
+
+	utcs := map[string]string{}
+
+	ids := []string{}
+	idsjson := c.FormValue("ids")
+	err := json.Unmarshal([]byte(idsjson), &ids)
+	if err != nil {
+		// 応答
+		return c.JSON(http.StatusBadRequest, utcs)
+	}
+
+	for _, uid := range ids {
+		if note, err := getNote(c, uid); err == nil {
+			utcs[uid] = note.UTC
+		}
+	}
+
+	// 応答
+	return c.JSON(http.StatusOK, utcs)
 }
 
 // 更新 API
