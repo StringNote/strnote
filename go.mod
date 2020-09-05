@@ -10,7 +10,7 @@ require (
 	github.com/labstack/echo/v4 v4.1.17
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/stretchr/testify v1.6.1 // indirect
-	golang.org/x/tools v0.0.0-20200903185744-af4cc2cd812e // indirect
+	golang.org/x/tools v0.0.0-20200904185747-39188db58858 // indirect
 	google.golang.org/api v0.31.0
 	google.golang.org/appengine v1.6.6
 	google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d // indirect

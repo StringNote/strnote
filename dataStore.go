@@ -21,22 +21,31 @@ func setValue(r *http.Request, key, value string) error {
 		return err
 	}
 
+	setMapcache(key, value)
+
 	return nil
 }
 
 // getValue はキーに対しての値を取得します。
 func getValue(r *http.Request, key string) (string, error) {
+	value, err := getMapcache(key)
+	if value != "" {
+		// キャッシュにあったので返す
+		return value, err
+	}
+
 	// キャッシュを検索
 	// logOutput("memcache.Get")
-	ret, err := getMemcache(r, key)
-	if ret != "" {
+	value, err = getMemcache(r, key)
+	if value != "" {
 		// キャッシュにあったので返す
-		return ret, err
+		setMapcache(key, value)
+		return value, err
 	}
 
 	// キャッシュにないので Firestore から取得する
 	// logOutput("getFirestore")
-	value, err := getFirestore(key)
+	value, err = getFirestore(key)
 	if err != nil {
 		// Firestore にもなかった
 		logOutput(err.Error())
@@ -44,6 +53,7 @@ func getValue(r *http.Request, key string) (string, error) {
 	}
 
 	// キャッシュに書き込む
+	setMapcache(key, value)
 	// logOutput("memcache.Set")
 	err = setMemcache(r, key, []byte(value))
 	if err != nil {
