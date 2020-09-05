@@ -1,0 +1,97 @@
+.hide {
+	display: none;
+}
+h1 {
+	color: blue;
+	margin-bottom: 0px;
+}
+.topic {
+	font-size: large;
+    font-weight: bold;
+	color: red;
+}
+.stdbutton {
+    font-size: 1.4em;
+    font-weight: bold;
+	padding: 10px 30px;
+	color: orangered;
+}
+#access {
+	color: blue;
+}
+
+#logout {
+	font-size: big;
+}
+
+#update {
+	margin: 3px 0px 5px 5px;
+	width: 750px;
+}
+#userid {
+	margin-left: 10px;
+	font-size: xx-small;
+	color: blue;
+}
+#usertag {
+	margin-left: 10px;
+	font-size: xx-small;
+	color: blue;
+}
+#usernote {
+	width: 360px;
+    height: 270px;
+	margin-left: 10px;
+}
+#note-disp {
+	background-color: aliceblue;
+	/*width: 400px;*/
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+#note-id {
+	/*width: 400px;*/
+	line-height: 1em;
+	word-break: break-all;
+	overflow-wrap: break-word;
+}
+#note-update {
+	background-color: aliceblue;
+	/*width: 400px;*/
+}
+#note-name {
+	width: 720px;
+	margin-left: 10px;
+}
+#note-mes {
+	width: 720px;
+    height: 6em;
+	margin-left: 10px;
+}
+#btn-update-div {
+	width: 720px;
+    height: 4em;
+	margin-left: 10px;
+}
+#cage {
+	width: 750px;
+	margin-left: 10px;
+}
+#logout {
+	width: 750px;
+	margin-top: 5px;
+	margin-left: 5px;
+}
+.ad {
+	text-align: center;
+	font-size: 16pt;
+	font-family: serif;
+	background-color: wheat;
+	width: 750px;
+    height: 180px;
+	margin-left: 5px;
+}
+.button-align {
+	text-align: right;
+	margin-right: 10px;
+}

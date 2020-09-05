@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="icon" href="https://strnote.com/static/favicon.ico">
+		<title>StringNote Vanila Viewer - ver.2</title>
+		<script type="text/javascript" src="https://strnote.com/static/getNote.js"></script>
+<style type="text/css">
+.hide {
+	display: none;
+}
+.note {
+	width: 95%;
+    height: 270px;
+    margin-left: 10px;
+    padding-left: 5px;
+	border: 3px solid blue;
+	border-radius: 5px;
+}
+.append {
+	background-color: lightcoral;
+	border-radius: 10px;
+	padding: 5px;
+	margin: 2px;
+}
+#nickname {
+	width: 32em;
+}
+#noteid {
+	width: 16em;
+}
+#notes-json {
+	width: 80%;
+}
+.opebtn {
+	margin-left: 1em;
+}
+.note_name {
+	font-size: small;
+	color: blue;
+}
+#notes {
+	border-collapse: collapse;
+  	border: 1px solid black;
+  	margin: 0em 1em 1em 1em;
+}
+#notes td {
+	border: 1px solid black;
+}
+</style>
+<script>
+	const noteKey = "notes";
+
+	function loadNotes() {
+		return localStorage.getItem(noteKey);
+	}
+	function saveNotes(notesjson) {
+		localStorage.setItem(noteKey, notesjson);
+	}
+	function addNote(nickname, noteid) {
+		let notesjson = loadNotes();
+		if (!notesjson) {
+			notesjson = "[]"
+		}
+		let idso = JSON.parse(notesjson);
+		idso.push({"name":nickname, "id":noteid});
+		notesjson = JSON.stringify(idso);
+		saveNotes(notesjson);
+		return notesjson;
+	}
+	function removeNote(numnote) {
+		let notesjson = loadNotes();
+		if (!notesjson) {
+			notesjson = "[]"
+		}
+		let idso = JSON.parse(notesjson);
+		idso.splice(numnote, 1);
+		notesjson = JSON.stringify(idso);
+		saveNotes(notesjson);
+		return notesjson;
+	}
+</script>
+<script>
+	function utc2local(ymdhms) {
+		const ye = ymdhms.substring(0,4);
+		const mo = ymdhms.substring(4,6)-1;
+		const da = ymdhms.substring(6,8);
+		const ho = ymdhms.substring(8,10);
+		const mi = ymdhms.substring(10,12);
+		const se = ymdhms.substring(12,14);
+		return new Date(Date.UTC(ye, mo, da, ho, mi, se));
+  	}
+  	function local2str(dt) {
+		const ye = dt.getFullYear();
+		const mo = "" + (dt.getMonth()+1);
+		const da = "" + dt.getDate();
+		const ho = "" + dt.getHours();
+		const mi = "" + dt.getMinutes();
+		const se = "" + dt.getSeconds();
+		return ye + "/" + mo.padStart(2, "0") + "/" + da.padStart(2, "0")
+			+ " " +  ho.padStart(2, "0") + ":" +  mi.padStart(2, "0") + ":" +  se.padStart(2, "0");
+	}
+</script>
+<script>
+	function refreshNote(uid) {
+		getNotePromise(uid)
+		.then(function (info, result) {
+            console.log(info.result);
+			res = JSON.parse(info.result)
+			let name = res.name;
+			let mes = res.mes;
+			let time = local2str(utc2local(res.utc));
+			document.getElementById("note_name_" + uid).innerText = name + " (" + time + ")";
+			document.getElementById("note_mes_" + uid).innerText = mes;
+        }).catch(function (error) {
+            console.log(error);
+        });
+	}
+	/** create display area */
+	function appendDiv(i, note) {
+		let id = note.id;
+
+		let newDiv = document.createElement("tr");
+		newDiv.setAttribute("id", "div_" + id);
+
+		/** nickname */
+		let newname = document.createElement("td");
+		newname.appendChild(document.createTextNode(note.name));
+		newDiv.appendChild(newname);
+
+		/** reload button */
+		let relTD = document.createElement("td");
+		let relBtn = document.createElement("input");
+		relBtn.setAttribute("type", "button");
+		relBtn.classList.add("opebtn");
+		relBtn.numnote = i;
+		relBtn.note = note;
+		relBtn.value = "reload";
+		relBtn.addEventListener("click", function() {
+			refreshNote(this.note.id);
+		});
+		relTD.appendChild(relBtn);
+		newDiv.appendChild(relTD);
+
+		/** note */
+		let noteTD = document.createElement("td");
+		let nameSpan = document.createElement("span");
+		nameSpan.setAttribute('id', "note_name_" + id);
+		nameSpan.classList.add("note_name");
+		noteTD.appendChild(nameSpan);
+		let br = document.createElement("br");
+		noteTD.appendChild(br);
+		let noteSpan = document.createElement("span");
+		noteSpan.setAttribute('id', "note_mes_" + id);
+		noteSpan.classList.add("note_mes");
+		noteTD.appendChild(noteSpan);
+		newDiv.appendChild(noteTD);
+		refreshNote(note.id);
+
+		/** remove button */
+		let remTD = document.createElement("td");
+		let remBtn = document.createElement("input");
+		remBtn.setAttribute("type", "button");
+		remBtn.classList.add("opebtn");
+		remBtn.numnote = i;
+		remBtn.note = note;
+		remBtn.value = "remove";
+		remBtn.addEventListener("click", function() {
+			if (window.confirm("confirm remove: " + this.note.name)) {
+				removeNote(this.numnote);
+				location.reload(true);
+			}
+		});
+		remTD.appendChild(remBtn);
+		newDiv.appendChild(remTD);
+
+		return newDiv;
+	}
+
+	/** initialize */
+	function view_init() {
+		if (navigator.language=="ja") {
+			document.getElementById('usage-ja').classList.remove("hide");
+			document.getElementById('usage-en').classList.add("hide");
+		} else {
+			document.getElementById('usage-ja').classList.add("hide");
+			document.getElementById('usage-en').classList.remove("hide");
+		}
+
+		/** event handler */
+		document.getElementById('btn-append').addEventListener("click", () => {
+			let nickname = document.getElementById('nickname').value;
+			let noteid = document.getElementById('noteid').value;
+			addNote(nickname, noteid);
+			location.reload(true);
+		});
+		document.getElementById('btn-import').addEventListener("click", () => {
+			let notesjson = document.getElementById('notes-json').value
+			saveNotes(notesjson)
+			location.reload(true);
+		});
+
+		/** notes loading */
+		let notesjson = loadNotes();
+		if(!notesjson) {
+			let nickname = "StringNote";
+			let noteid = "4B_4CSj0U_nhWa6YCbzB1w";
+			notesjson = addNote(nickname, noteid);
+		}
+		document.getElementById('notes-json').value = notesjson;
+
+		/** display */
+		let idso = JSON.parse(notesjson);
+		let notes = document.getElementById('notes');
+		for (i in idso) {
+			let note = idso[i];
+			let newDiv = appendDiv(i, note);
+			notes.appendChild(newDiv);
+		}
+	}
+</script>
+	</head>
+	<body>
+		<p id="usage-ja">
+			このビューアはノートを参照するスクリプトのひな型です。<br/>
+			最低限な機能だけ実装したものなので、ローカルにダウンロードして自由に改造してください。<br/>
+			ライセンスはMITライセンスとします。<br/>
+		</p>
+		<p id="usage-en">
+			This viewer is a model of a script for referencing notes.<br/>
+			You can download it locally and modify it freely.<br/>
+			The license of this viewer is MIT license.<br/>
+		</p>
+		<hr/>
+		<div class="append">
+			nickname: <input type="text" id="nickname"></input>
+			&nbsp;noteid: <input type="text" id="noteid"></input>
+			<input type="button" id="btn-append" value="append note"></input>
+		</div>
+		<div class="append">
+			notes: <input type="text" id="notes-json"></input>
+			<input type="button" id="btn-import" value="import notes"></input>
+		</div>
+		<table id="notes"></table>
+	</body>
+	<script>
+		view_init();
+	</script>
+</html>
