@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -13,11 +14,13 @@ import (
 )
 
 const (
-	uidPRE        = "u."               // ユーザのキーのプリフィックス
-	confPRE       = "c."               // 設定のキーのプリフィックス
-	tokenHeader   = "X-Requested-With" // トークンのヘッダ
-	maxNameLength = 64                 // ニックネームの最大長
-	maxMesLength  = 512                // メッセージの最大長
+	uidPRE        = "u."                 // ユーザのキーのプリフィックス
+	confPRE       = "c."                 // 設定のキーのプリフィックス
+	tokenHeader   = "X-Requested-With"   // トークンのヘッダ
+	optHeader     = "X-Requested-Option" // オプションのヘッダ
+	maxOptNum     = 4                    // オプションの数
+	maxNameLength = 64                   // ニックネームの最大長
+	maxMesLength  = 512                  // メッセージの最大長
 )
 
 var (
@@ -188,8 +191,34 @@ func updateAPI(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "invalid token")
 	}
 
+	// 独自ヘッダの確認
+	opt := ""
+	optToken := c.Request().Header.Get(optHeader)
+	if optToken != "" {
+		type Opt struct {
+			Num int `json:"num"`
+		}
+		o := Opt{}
+		bad := false
+		if err = json.Unmarshal([]byte(optToken), &o); err == nil {
+			if 1 < o.Num && o.Num < maxOptNum {
+				opt = strconv.Itoa(o.Num)
+			} else {
+				bad = true
+			}
+		} else {
+			bad = true
+		}
+		if bad {
+			// 不正なリクエスト
+			mes := "bad header " + optHeader
+			logOutput(mes)
+			return c.String(http.StatusBadRequest, mes)
+		}
+	}
+
 	// ノートを保存
-	uid := convertUID(c.Request(), resToken.UID)
+	uid := convertUID(c.Request(), opt+resToken.UID)
 	name := strcat(c.FormValue("name"), maxNameLength)
 	mes := strcat(c.FormValue("mes"), maxMesLength)
 	setNote(c, uid, name, mes)
