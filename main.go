@@ -193,14 +193,14 @@ func updateAPI(c echo.Context) error {
 
 	// 独自ヘッダの確認
 	opt := ""
-	optToken := c.Request().Header.Get(optHeader)
-	if optToken != "" && optToken != "{}" {
+	optJSON := c.Request().Header.Get(optHeader)
+	if optJSON != "" && optJSON != "{}" {
 		type Opt struct {
 			Num int `json:"num"`
 		}
 		o := Opt{}
 		bad := false
-		if err = json.Unmarshal([]byte(optToken), &o); err == nil {
+		if err = json.Unmarshal([]byte(optJSON), &o); err == nil {
 			if 1 < o.Num && o.Num < maxOptNum {
 				opt = strconv.Itoa(o.Num)
 			} else if 0 == o.Num {
@@ -215,6 +215,7 @@ func updateAPI(c echo.Context) error {
 			// 不正なリクエスト
 			mes := "bad header " + optHeader
 			logOutput(mes)
+			logOutput(optJSON)
 			return c.String(http.StatusBadRequest, mes)
 		}
 	}
