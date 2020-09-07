@@ -68,3 +68,27 @@ func getFirestore(key string) (string, error) {
 	logOutput("return empty")
 	return "", nil
 }
+
+func deleteFirestore(key string) error {
+	logOutput(fmt.Sprintf("key:%s", key))
+	ctx, cancel := getContext(nil)
+	defer cancel()
+	app, err := firebase.NewApp(ctx, nil, getOption())
+	if err != nil {
+		logOutput(err.Error())
+		return err
+	}
+	client, err := app.Firestore(ctx)
+	if err != nil {
+		logOutput(err.Error())
+		return err
+	}
+	defer client.Close()
+	// 削除
+	_, err = client.Collection("Data").Doc(key).Delete(ctx)
+	if err != nil {
+		logOutput(err.Error())
+		return err
+	}
+	return err
+}

@@ -18,6 +18,7 @@ func setMapcache(key, value string) error {
 	mapcache[key] = value
 	return nil
 }
+
 func getMapcache(key string) (string, error) {
 	if mapcache == nil {
 		return "", notMatchKey
@@ -26,4 +27,9 @@ func getMapcache(key string) (string, error) {
 		return val, nil
 	}
 	return "", notMatchKey
+}
+
+func deleteMapcache(key string) error {
+	delete(mapcache, key)
+	return nil
 }

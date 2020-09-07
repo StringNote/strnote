@@ -63,3 +63,11 @@ func getValue(r *http.Request, key string) (string, error) {
 
 	return value, err
 }
+
+// deleteValue はキーのデータを削除します。
+func deleteValue(r *http.Request, key string) error {
+	deleteMapcache(key)
+	deleteMemcache(r, key)
+	deleteFirestore(key)
+	return nil
+}

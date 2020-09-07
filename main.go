@@ -40,9 +40,12 @@ func main() {
 	echoInst.GET("/api/v1/:uid", getAPI)
 	echoInst.GET("/api/v2/:uid", getAPI2)
 	// 更新時刻一覧 API
+	// TODO: 取得なのにGETでないのが微妙。しかしFormが取れない
 	echoInst.POST("/api/v2/list", listAPI2)
 	// 更新 API
 	echoInst.POST("/api/v1/user", updateAPI)
+	// 削除 API
+	echoInst.DELETE("/api/v1/user", deleteAPI)
 
 	http.Handle("/", echoInst)
 	appengine.Main()
@@ -238,5 +241,65 @@ func updateAPI(c echo.Context) error {
 		Name: note.Name,
 		Mes:  note.Mes,
 	}
+	return c.JSON(http.StatusOK, param)
+}
+
+// 削除 API
+func deleteAPI(c echo.Context) error {
+	mu.Lock()
+	// リクエストしてきたリモート
+	requestIP := c.RealIP()
+	if b, ok := proccesing[requestIP]; ok && b {
+		mu.Unlock()
+		// 処理中にまた来た
+		// 不正なリクエストとしてエラー
+		mes := "processing"
+		logOutput(mes)
+		return c.String(http.StatusBadRequest, mes)
+	}
+	// → 処理中
+	proccesing[requestIP] = true
+	mu.Unlock()
+
+	defer func() {
+		mu.Lock()
+		// → 処理終了
+		proccesing[requestIP] = false
+		mu.Unlock()
+	}()
+
+	// 独自ヘッダの確認
+	reqToken := c.Request().Header.Get(tokenHeader)
+	if reqToken == "" {
+		// 不正なリクエスト
+		mes := "need header X-Requested-With"
+		logOutput(mes)
+		return c.String(http.StatusBadRequest, mes)
+	}
+
+	// トークンの認可
+	resToken, err := verifyUser(c.Response().Writer, reqToken)
+	if err != nil {
+		// 認可失敗
+		logOutput(err.Error())
+		// 連打防止対策 (総当たり攻撃)としてレスポンスに10秒のペナルティ
+		// ペナルティ中に同じリモートから再POSTされるとエラーで返している
+		time.Sleep(time.Duration(10) * time.Second)
+		return c.String(http.StatusBadRequest, "invalid token")
+	}
+
+	// ノートを削除
+	for i := 1; i < maxOptNum; i++ {
+		opt := strconv.Itoa(i)
+		uid := convertUID(c.Request(), opt+resToken.UID)
+		deleteNote(c, uid)
+	}
+	uid := convertUID(c.Request(), resToken.UID)
+	deleteNote(c, uid)
+
+	// レスポンス
+	type RetParam struct {
+	}
+	param := RetParam{}
 	return c.JSON(http.StatusOK, param)
 }
