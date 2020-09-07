@@ -20,7 +20,8 @@ h1 {
 	color: blue;
 }
 .description {
-	margin: 15px;
+	margin: 5px;
+	padding: 15px;
 	width: 750px;
 	border: 10px solid darkorange;
 	background-color: papayawhip;
