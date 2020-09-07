@@ -41,6 +41,13 @@
       </div>
     </div>
     <div id="note-update">
+      note number:
+      <select id="note-num">
+        <option value="0">note-1</option>
+        <option value="1">note-2</option>
+        <option value="2">note-3</option>
+        <option value="3">note-4</option>
+      </select><br/>
       nickname:<br />
       <input type="text" id="note-name" autocomplete="on"></input><br />
       message:<br />
@@ -51,13 +58,13 @@
     </div>
   </div>
   <div class="ad">This space is reserved for<br />sponsored &amp; advertising.</div>
-  <div id="cage">
+  <div id="login">
     <h2>Account login:</h2>
     <div id="firebaseui-auth-container"></div>
   </div>
-  <div id="logout" class="hide button-align">
+  <div id="logout" class="hide">
     <h2>Account logout:</h2>
-    <button type="button" id="btn-logout" class="stdbutton">Logout from Account.</button>
+    <button type="button" id="btn-logout" class="stdbutton button-align">Logout from Account.</button>
   </div>
   <hr />
   <p>
@@ -87,16 +94,14 @@
         .then(function (token) {
           idToken = token;
           showUpdate();
-          updateNote(idToken, "", "");
+          setupNoteUpdate("", "");
         }).catch(function (error) {
           console.log(error);
         });
       showLogout();
-      console.log(user);
     } else {
       // ログインしていない
       showLogin();
-      hideUpdate();
       uiStart('firebaseui-auth-container');
     }
   }
@@ -110,20 +115,29 @@
     });
   });
 
+  // ノート番号変更
+  document.getElementById('note-num').addEventListener("change", () => {
+    optObj.num = this.selectedIndex;
+    setupNoteUpdate("", "");
+  });
+  
   // 更新処理実行
   document.getElementById('btn-update').addEventListener("click", () => {
     name = document.getElementById("note-name").value
     mes = document.getElementById("note-mes").value
-    updateNote(idToken, name, mes);
+    setupNoteUpdate(name, mes);
   });
 
   // ログイン操作部
   function showLogin() {
+    optObj.num = 0;
+    document.getElementById('login').classList.remove("hide");
     document.getElementById('logout').classList.add("hide");
     hideUpdate();
   }
   function showLogout() {
     document.getElementById('logout').classList.remove("hide");
+    document.getElementById('login').classList.add("hide");
   }
 
   // 更新操作部
@@ -135,7 +149,7 @@
   }
 
   // ノート表示の更新
-  function replaceIframe(id) {
+  function updateNoteInfo(id) {
     var html = "<iframe src=\"/api/v1/" + id + "\"></iframe>";
     var url = "https://strnote.com/api/v1/" + id;
     document.getElementById('userid').innerHTML = "<code>" + id + "</code>";
@@ -145,20 +159,24 @@
     //document.getElementById('usernote').contentDocument.location.replace(url);
   }
 
-  function updateNote(token, name, mes) {
-    sendTokenPromise(token, name, mes)
+  // 更新オプション
+  var optObj = {"num":0};
+  function changeNoteNum(num) {
+    optObj.num = num;
+    setupNoteUpdate("", "");
+  }
+
+  function setupNoteUpdate(name, mes) {
+    sendTokenPromise(idToken, name, mes, optObj)
       .then(function (info, result) {
         //console.log(info.result);
         res = JSON.parse(info.result)
-        replaceIframe(res.uid);
-        setNote(res.name, res.mes);
+        updateNoteInfo(res.uid);
+        document.getElementById('note-name').value = res.name;
+        document.getElementById('note-mes').textContent = res.mes;
       }).catch(function (error) {
         console.log(error);
       });
-  }
-  function setNote(name, mes) {
-    document.getElementById('note-name').value = name;
-    document.getElementById('note-mes').textContent = mes;
   }
 </script>
 
