@@ -29,22 +29,22 @@ h1 {
 	line-height: 1em;
 	word-break: break-all;
 	overflow-wrap: break-word;
+	border: 1px solid black;
+	background-color: aliceblue;
 }
 .span-small {
 	margin-left: 10px;
 	font-size: xx-small;
 	color: blue;
 }
-
-#note-disp {
-	background-color: aliceblue;
-	margin-top: 10px;
-	margin-bottom: 10px;
-}
 #usernote {
 	width: 720px;
     height: 270px;
 	margin-left: 10px;
+}
+#note-disp {
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 #note-update {
