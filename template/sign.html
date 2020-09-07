@@ -117,8 +117,7 @@
 
   // ノート番号変更
   document.getElementById('note-num').addEventListener("change", () => {
-    optObj.num = this.selectedIndex;
-    setupNoteUpdate("", "");
+    changeNoteNum(document.getElementById('note-num').selectedIndex);
   });
   
   // 更新処理実行
