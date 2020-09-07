@@ -20,44 +20,35 @@ h1 {
 	color: blue;
 }
 
-#logout {
-	font-size: big;
-}
-
 #update {
 	margin: 3px 0px 5px 5px;
 	width: 750px;
 }
-#userid {
-	margin-left: 10px;
-	font-size: xx-small;
-	color: blue;
-}
-#usertag {
-	margin-left: 10px;
-	font-size: xx-small;
-	color: blue;
-}
-#usernote {
-	width: 360px;
-    height: 270px;
-	margin-left: 10px;
-}
-#note-disp {
-	background-color: aliceblue;
-	/*width: 400px;*/
-	margin-top: 10px;
-	margin-bottom: 10px;
-}
-#note-id {
-	/*width: 400px;*/
+
+#note-info {
 	line-height: 1em;
 	word-break: break-all;
 	overflow-wrap: break-word;
 }
+.span-small {
+	margin-left: 10px;
+	font-size: xx-small;
+	color: blue;
+}
+
+#note-disp {
+	background-color: aliceblue;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+#usernote {
+	width: 720px;
+    height: 270px;
+	margin-left: 10px;
+}
+
 #note-update {
 	background-color: aliceblue;
-	/*width: 400px;*/
 }
 #note-name {
 	width: 720px;
@@ -73,15 +64,19 @@ h1 {
     height: 4em;
 	margin-left: 10px;
 }
+
 #cage {
 	width: 750px;
 	margin-left: 10px;
 }
+
 #logout {
+	font-size: big;
 	width: 750px;
 	margin-top: 5px;
 	margin-left: 5px;
 }
+
 .ad {
 	text-align: center;
 	font-size: 16pt;
@@ -94,4 +89,8 @@ h1 {
 .button-align {
 	text-align: right;
 	margin-right: 10px;
+}
+#btn-logout {
+	position: relative;
+	min-width: 600px;
 }
