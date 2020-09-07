@@ -19,6 +19,14 @@ h1 {
 #access {
 	color: blue;
 }
+.description {
+	margin: 15px;
+	width: 750px;
+	border: 10px solid darkorange;
+	background-color: papayawhip;
+	color: brown;
+	border-radius: 20px;
+}
 
 #update {
 	margin: 3px 0px 5px 5px;
