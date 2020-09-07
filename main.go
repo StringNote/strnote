@@ -201,7 +201,7 @@ func updateAPI(c echo.Context) error {
 		o := Opt{}
 		bad := false
 		if err = json.Unmarshal([]byte(optJSON), &o); err == nil {
-			if 1 < o.Num && o.Num < maxOptNum {
+			if 0 < o.Num && o.Num < maxOptNum {
 				opt = strconv.Itoa(o.Num)
 			} else if 0 == o.Num {
 				// opt = ""
