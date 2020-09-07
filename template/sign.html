@@ -22,22 +22,23 @@
 <body>
   <h1>Welcome to StringNote.</h1>
   <span class="topic">early access version. (since 2020/09/01)</span><br />
-  total access: <span id="access">{{.Acc}}</span><br />
-  <span class="topic">[NEW!]</span>referenced viewer (HTML-API): <a href="/static/view.html" target="viewer">version
-    1</a><br />
-  <span class="topic">[NEW!]</span>referenced viewer (JSON-API): <a href="/static/view2.html" target="viewer">version
-    2</a><br />
-  <span class="topic">[NEW!]</span>source code: <a href="https://github.com/StringNote/strnote">GitHub</a><br />
+  <div id="header">
+    total access: <span id="access">{{.Acc}}</span><br />
+    referenced viewer (HTML-API): <a href="/static/view.html" target="viewer">version 1</a><br />
+    referenced viewer (JSON-API): <a href="/static/view2.html" target="viewer">version 2</a><br />
+    source code: <a href="https://github.com/StringNote/strnote">GitHub</a><br />
+  </div>
   <div id="update" class="hide">
-    <div id="note-disp">
-      <span id="userlink"></span><br />
-      <iframe id="usernote"></iframe><br />
-    </div>
-    <div id="note-id">
+    <div id="note-info">
       your ID:<br />
-      <span id="userid"></span><br />
+      <span id="userid" class="span-small"></span><br />
+      your note URL:<br/>
+      <span id="userlink" class="span-small"></span><br />
       your note embedded:<br />
-      <span id="usertag"></span><br />
+      <span id="usertag" class="span-small"></span><br />
+    </div>
+    <div id="note-disp">
+      <iframe id="usernote"></iframe><br />
     </div>
     <div id="note-update">
       nickname:<br />
@@ -51,22 +52,29 @@
   </div>
   <div class="ad">This space is reserved for<br />sponsored &amp; advertising.</div>
   <div id="cage">
+    <h2>Account login:</h2>
     <div id="firebaseui-auth-container"></div>
   </div>
   <div id="logout" class="hide button-align">
+    <h2>Account logout:</h2>
     <button type="button" id="btn-logout" class="stdbutton">Logout from Account.</button>
   </div>
   <hr />
-  copyright: strnote.com [<a href="mailto:contact@strnote.com" target="mail">mail</a>]<br />
-  ・<a href="/static/privacy.html" target="privacy">Privacy Policy</a><br />
   <p>
+    Copyright (C) 2020- strnote.com [<a href="mailto:contact@strnote.com" target="mail">mail</a>]<br />
+    ・<a href="/static/privacy.html" target="privacy">Privacy Policy</a><br />
+  </p>
+  <hr />
+  <h2>Official announcement NOTE:</h2>
+  <p>
+    <a href="https://strnote.com/api/v1/4B_4CSj0U_nhWa6YCbzB1w" target="notif">Open this note in a separate window.</a><br/>
     <iframe src="https://strnote.com/api/v1/4B_4CSj0U_nhWa6YCbzB1w"
       style="border: 0px; width: 750px; height: 32em;"></iframe><br />
-    <a href="https://strnote.com/api/v1/4B_4CSj0U_nhWa6YCbzB1w" target="notif">Open this note in a separate window.</a>
   </p>
 </body>
 
 <script>
+  // 認証トークン
   var idToken = "";
 
   // 認証状態変更ハンドラ
@@ -79,16 +87,7 @@
         .then(function (token) {
           idToken = token;
           showUpdate();
-          // アクセス用のIDを得る
-          sendTokenPromise(idToken, "", "")
-            .then(function (info, result) {
-              console.log(info.result);
-              res = JSON.parse(info.result)
-              replaceIframe(res.uid);
-              setNote(res.name, res.mes);
-            }).catch(function (error) {
-              console.log(error);
-            });
+          updateNote(idToken, "", "");
         }).catch(function (error) {
           console.log(error);
         });
@@ -115,15 +114,7 @@
   document.getElementById('btn-update').addEventListener("click", () => {
     name = document.getElementById("note-name").value
     mes = document.getElementById("note-mes").value
-    sendTokenPromise(idToken, name, mes)
-      .then(function (info, result) {
-        console.log(info.result);
-        res = JSON.parse(info.result)
-        replaceIframe(res.uid);
-        setNote(res.name, res.mes);
-      }).catch(function (error) {
-        console.log(error);
-      });
+    updateNote(idToken, name, mes);
   });
 
   // ログイン操作部
@@ -148,10 +139,22 @@
     var html = "<iframe src=\"/api/v1/" + id + "\"></iframe>";
     var url = "https://strnote.com/api/v1/" + id;
     document.getElementById('userid').innerHTML = "<code>" + id + "</code>";
-    document.getElementById('userlink').innerHTML = "<a href=\"" + url + "\" target=\"_new\">your note URL</a>";
+    document.getElementById('userlink').innerHTML = "<a href=\"" + url + "\" target=\"_new\">"+url+"</a>";
     document.getElementById('usertag').innerHTML = "&lt;iframe src=\"" + url + "\"&gt;&lt;/iframe&gt;";
     document.getElementById('usernote').outerHTML = "<iframe id=\"usernote\" src=\"" + url + "\"></iframe>";
     //document.getElementById('usernote').contentDocument.location.replace(url);
+  }
+
+  function updateNote(token, name, mes) {
+    sendTokenPromise(token, name, mes)
+      .then(function (info, result) {
+        //console.log(info.result);
+        res = JSON.parse(info.result)
+        replaceIframe(res.uid);
+        setNote(res.name, res.mes);
+      }).catch(function (error) {
+        console.log(error);
+      });
   }
   function setNote(name, mes) {
     document.getElementById('note-name').value = name;
