@@ -21,6 +21,12 @@
 
 <body>
   <h1>Welcome to StringNote.</h1>
+  <div id="description-ja" class="description">
+    StringNote は Google などにより認証されたユーザが、短文(以下、ノート)を登録し、登録時に払いだされたユーザ識別子(以下、UID)によって第三者が登録されたノートを参照できるものとするサービスです。
+  </div>
+  <div id="description-en" class="description">
+    StringNote is a service that allows users authenticated by Google and others to register short sentences (hereinafter referred to as "notes"), and for third parties to see the registered notes using the user identifier (hereinafter referred to as "UID") provided at the time of registration.
+  </div>
   <span class="topic">early access version. (since 2020/09/01)</span><br />
   <div id="header">
     total access: <span id="access">{{.Acc}}</span><br />
@@ -81,6 +87,14 @@
 </body>
 
 <script>
+	if (navigator.language=="ja") {
+		document.getElementById('description-ja').classList.remove("hide");
+		document.getElementById('description-en').classList.add("hide");
+	} else {
+		document.getElementById('description-ja').classList.add("hide");
+		document.getElementById('description-en').classList.remove("hide");
+	}
+
   // 認証トークン
   var idToken = "";
 
