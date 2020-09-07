@@ -27,3 +27,10 @@ func getMemcache(r *http.Request, key string) (string, error) {
 	}
 	return "", err
 }
+
+// キャッシュから削除する
+func deleteMemcache(r *http.Request, key string) error {
+	ctx, cancel := getContext(r)
+	defer cancel()
+	return memcache.Delete(ctx, key)
+}

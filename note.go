@@ -59,3 +59,8 @@ func setNote(c echo.Context, uid, name, mes string) error {
 	strjson := string(mesjson)
 	return setValue(c.Request(), uidPRE+uid, strjson)
 }
+
+// ノートを削除
+func deleteNote(c echo.Context, uid string) error {
+	return deleteValue(c.Request(), uidPRE+uid)
+}
