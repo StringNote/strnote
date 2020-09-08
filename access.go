@@ -52,6 +52,8 @@ func addAccess(r *http.Request) int {
 	}
 
 	// キャッシュに保存
+	jsonstr := string(bytes)
+	setMapcache(key, jsonstr)
 	err = setMemcache(r, key, bytes)
 	if err != nil {
 		logOutput(err.Error())
@@ -60,7 +62,6 @@ func addAccess(r *http.Request) int {
 
 	if needsave {
 		// 10分経過していたのでFirestoreに記録
-		jsonstr := string(bytes)
 		err := setFirestore(key, jsonstr)
 		if err != nil {
 			logOutput(jsonstr)
