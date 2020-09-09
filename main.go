@@ -58,10 +58,10 @@ func topPage(c echo.Context) error {
 	// w.Header().Set("Access-Control-Allow-Origin", "*")
 	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	type SignParam struct {
-		Acc int
+		Acc string
 	}
 	param := SignParam{
-		Acc: addAccess(c.Request()),
+		Acc: comma(addAccess(c.Request())),
 	}
 	return templateRender(http.StatusOK, "sign", param, c)
 }
