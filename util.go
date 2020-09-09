@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"runtime"
+	"strconv"
+	"strings"
 	"time"
 
 	"google.golang.org/appengine"
@@ -78,4 +80,34 @@ func ymdhms2GMT(ymdhms string) (string, error) {
 	}
 	headtime := utc.Format("Mon, 02 Jan 2006 15:04:05 GMT")
 	return headtime, nil
+}
+
+func slice(str string, slen int) []string {
+	ret := []string{}
+	ls := len(str)
+	start := 0
+	for start < ls {
+		end := start + slen
+		if ls < end {
+			end = ls
+		}
+		ret = append(ret, str[start:end])
+		start += slen
+	}
+	return ret
+}
+func splitEnd(str string, size int) []string {
+	ret := []string{}
+	maxlen := len(str)
+	start := maxlen % size
+	if start != 0 {
+		ret = append(ret, str[:start])
+	}
+	if start < maxlen {
+		ret = append(ret, slice(str[start:], size)...)
+	}
+	return ret
+}
+func comma(num int) string {
+	return strings.Join(splitEnd(strconv.Itoa(num), 3), ",")
 }
