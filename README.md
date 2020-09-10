@@ -17,8 +17,12 @@ MAIL: [contact@strnote.com](mailto:contact@strnote.com)
 
 ## ビューア
 
-static/view.html および view2.html は、グループとしたいメンバーのUIDを登録し、API を用いて一覧表示を行うサンプルとなっています。  
+static/view.html および view3.html は、グループとしたいメンバーのUIDを登録し、API を用いて一覧表示を行うサンプルとなっています。  
 コード内に記述してありますように MIT ライセンスでの参考実装ですので、改造したものを公開することなどは自由です。  
+
+## API
+
+[参照時 API](API.md) を参照。
 
 ## ライセンス
 
