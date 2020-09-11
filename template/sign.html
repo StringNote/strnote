@@ -150,8 +150,10 @@
 
   // クリア処理実行
   document.getElementById('btn-clear').addEventListener("click", () => {
-    if (window.confirm("confirm clear")) {
-      clearNoteUpdate();
+    if (window.confirm("Your account will be deleted.")) {
+      if (window.confirm("We can't get it back!!!!")) {
+        clearNoteUpdate();
+      }
     }
   });
 
@@ -209,9 +211,7 @@
   function clearNoteUpdate() {
     clearTokenPromise(idToken)
       .then(function (info, result) {
-        //console.log(info.result);
-        document.getElementById('note-name').value = "";
-        document.getElementById('note-mes').value = "";
+        showLogin();
       }).catch(function (error) {
         console.log(error);
       });
