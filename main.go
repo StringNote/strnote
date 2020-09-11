@@ -296,6 +296,8 @@ func deleteAPI(c echo.Context) error {
 	}
 	uid := convertUID(c.Request(), resToken.UID)
 	deleteNote(c, uid)
+	// Firebase Authentication で記録されているユーザ情報
+	deleteUser(c.Response().Writer, resToken)
 
 	// レスポンス
 	type RetParam struct {

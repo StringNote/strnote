@@ -21,7 +21,7 @@ func verifyUser(w http.ResponseWriter, reqToken string) (*auth.Token, error) {
 	auth, err := app.Auth(ctx)
 	if err != nil {
 		logOutput(err.Error())
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
 		return nil, err
 	}
 	token, err := auth.VerifyIDToken(ctx, reqToken)
@@ -31,4 +31,29 @@ func verifyUser(w http.ResponseWriter, reqToken string) (*auth.Token, error) {
 		return nil, err
 	}
 	return token, nil
+}
+
+// deleteUser はユーザ情報を抹消します。
+func deleteUser(w http.ResponseWriter, token *auth.Token) error {
+	ctx, cancel := getContext(nil)
+	defer cancel()
+	app, err := firebase.NewApp(ctx, nil, getOption())
+	if err != nil {
+		logOutput(err.Error())
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return err
+	}
+	auth, err := app.Auth(ctx)
+	if err != nil {
+		logOutput(err.Error())
+		http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+		return err
+	}
+	err = auth.DeleteUser(ctx, token.UID)
+	if err != nil {
+		logOutput(err.Error())
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return err
+	}
+	return nil
 }
