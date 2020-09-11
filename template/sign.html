@@ -128,13 +128,14 @@
   }
 
   // ログアウト処理実行
-  document.getElementById('btn-logout').addEventListener("click", () => {
+  function logoutHandle() {
     signOutPromise().then(() => {
       showLogin();
     }).catch((error) => {
       alert(`ログアウトできませんでした(${error})`);
     });
-  });
+  }
+  document.getElementById('btn-logout').addEventListener("click", logoutHandle);
 
   // ノート番号変更
   document.getElementById('note-num').addEventListener("change", () => {
@@ -211,7 +212,7 @@
   function clearNoteUpdate() {
     clearTokenPromise(idToken)
       .then(function (info, result) {
-        showLogin();
+        logoutHandle();
       }).catch(function (error) {
         console.log(error);
       });
