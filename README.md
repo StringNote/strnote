@@ -47,16 +47,16 @@ API に関しては[参照時 API](API.md) をご覧ください。
 
 ## ライセンス
 
-本ソースコードは、StringNote のセキュリティ検証用に公開するものであり、クローンサイトなどを許可する目的のものではありません。したがって、ライセンスは存在しませんのでご了承ください。  
+**本ソースコードは、StringNote のセキュリティ検証用に公開するものであり、クローンサイトなどを許可する目的のものではありません。**  
+したがって、ライセンスは存在しませんのでご了承ください。  
 
-なお、個々のソースコードの部品に関しては著作権は存在しないという見解です。  
-よって、サンプルとしてのご利用は自由です。  
+なお、個々のソースコードの部品に関して、サンプルとしてのご利用は自由です。  
 
 [english version]  
-This source code is for security verification of StringNote, and is not intended to allow clone sites and the like. Therefore, please note that there is no license.  
+**This source code is for security verification of StringNote, and is not intended to allow clone sites and the like.**  
+Therefore, please note that there is no license.  
 
-In addition, for the individual components of the source code is the view that the copyright does not exist.  
-Therefore, you are free to use them as samples.  
+You are free to use the individual source code components as samples.  
 
 ## 利用パッケージ
 
