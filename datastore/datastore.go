@@ -44,11 +44,6 @@ func (d *DataStore) SetValue(r *http.Request, key, value string) error {
 	return d.SetValueCache(r, key, value)
 }
 
-// Keys はキーの一覧を返します。
-func (d *DataStore) Keys(r *http.Request) []string {
-	return d.fs.Keys()
-}
-
 // GetValue はキーに対しての値を取得します。
 func (d *DataStore) GetValue(r *http.Request, key string) (string, error) {
 	cachekey := d.name + key

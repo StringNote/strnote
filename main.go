@@ -103,7 +103,7 @@ func adPage(c echo.Context) error {
 	if expr {
 		util.LogOutput("refresh ad list")
 		adkeys.utc = util.Time2ymdhms(cur)
-		adkeys.sdkeys = adds.Keys(c.Request())
+		adkeys.sdkeys = adds.Keys()
 		if bytes, err := json.Marshal(&adkeys); err == nil {
 			// キャッシュ保存
 			_ = ds.SetValueCache(c.Request(), confPRE+"adkey", string(bytes))
