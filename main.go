@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -30,11 +31,13 @@ var (
 	proccesing map[string]bool
 	mu         sync.Mutex
 	ds         *datastore.DataStore
+	adds       *datastore.DataStore
 )
 
 func main() {
 	proccesing = map[string]bool{}
 	ds = datastore.NewDataStore("Data")
+	adds = datastore.NewDataStore("Ad")
 
 	echoInst := echo.New()
 	// CORS対応 (XMLHttpRequest で GET したときに、単純リクエストなのになぜかクロスサイトアクセスが必要)
@@ -42,6 +45,8 @@ func main() {
 
 	// トップページ
 	echoInst.GET("/", topPage)
+	// 広告ページ
+	echoInst.GET("/ad", adPage)
 	// 取得 API
 	echoInst.GET("/api/v1/:uid", getAPI)
 	echoInst.GET("/api/v2/:uid", getAPI2)
@@ -70,6 +75,48 @@ func topPage(c echo.Context) error {
 		Acc: util.Comma(addAccess(c.Request())),
 	}
 	return templateRender(http.StatusOK, "sign", param, c)
+}
+
+// 広告ページ
+func adPage(c echo.Context) error {
+	type adkeyList struct {
+		utc    string
+		sdkeys []string
+	}
+	adkeys := adkeyList{sdkeys: []string{}}
+	cur := time.Now().UTC()
+	expr := true
+	// 広告キーリストを取得
+	adkeyjson, err := ds.GetValue(c.Request(), confPRE+"adkey")
+	if err == nil {
+		if err = json.Unmarshal([]byte(adkeyjson), &adkeys); err == nil {
+			// adkey をデコードできた
+			if old, err := util.Ymdhms2time(adkeys.utc); err == nil {
+				dur := cur.Sub(old)
+				if dur.Hours() < 1 {
+					// 満了していない
+					expr = false
+				}
+			}
+		}
+	}
+	if expr {
+		util.LogOutput("refresh ad list")
+		adkeys.utc = util.Time2ymdhms(cur)
+		adkeys.sdkeys = adds.Keys(c.Request())
+		if bytes, err := json.Marshal(&adkeys); err == nil {
+			// キャッシュ保存
+			_ = ds.SetValueCache(c.Request(), confPRE+"adkey", string(bytes))
+		}
+	}
+	// ランダムに広告を選択
+	rand.Seed(cur.UnixNano())
+	key := adkeys.sdkeys[rand.Intn(len(adkeys.sdkeys))%len(adkeys.sdkeys)]
+	if html, err := adds.GetValue(c.Request(), key); err == nil {
+		return c.HTML(http.StatusOK, html)
+	}
+	util.LogOutput(key)
+	return c.HTML(http.StatusInternalServerError, key)
 }
 
 // 取得 API
