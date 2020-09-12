@@ -1,6 +1,7 @@
 package firebase
 
 import (
+	"context"
 	"fmt"
 
 	firebase "firebase.google.com/go"
@@ -20,7 +21,7 @@ func NewCollection(collection string) *Collection {
 // Set は Collection に値を保存します。
 func (f *Collection) Set(key, value string) error {
 	util.LogOutput(fmt.Sprintf("key:%s, value:%s", key, value))
-	ctx, cancel := util.GetContext(nil)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	app, err := firebase.NewApp(ctx, nil, GetOption())
 	if err != nil {
@@ -49,7 +50,7 @@ func (f *Collection) Set(key, value string) error {
 // Get は Collection でキーから値を検索します。
 func (f *Collection) Get(key string) (string, error) {
 	util.LogOutput(fmt.Sprintf("key:%s", key))
-	ctx, cancel := util.GetContext(nil)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	app, err := firebase.NewApp(ctx, nil, GetOption())
 	if err != nil {
@@ -85,7 +86,7 @@ func (f *Collection) Get(key string) (string, error) {
 // Delete は Collection からキーを削除します。
 func (f *Collection) Delete(key string) error {
 	util.LogOutput(fmt.Sprintf("key:%s", key))
-	ctx, cancel := util.GetContext(nil)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	app, err := firebase.NewApp(ctx, nil, GetOption())
 	if err != nil {

@@ -1,6 +1,7 @@
 package firebase
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -11,7 +12,7 @@ import (
 
 // VerifyUser はIDトークンを検証した結果を返します。
 func VerifyUser(w http.ResponseWriter, reqToken string) (*auth.Token, error) {
-	ctx, cancel := util.GetContext(nil)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	app, err := firebase.NewApp(ctx, nil, GetOption())
 	if err != nil {
@@ -36,7 +37,7 @@ func VerifyUser(w http.ResponseWriter, reqToken string) (*auth.Token, error) {
 
 // DeleteUser はユーザ情報を抹消します。
 func DeleteUser(w http.ResponseWriter, token *auth.Token) error {
-	ctx, cancel := util.GetContext(nil)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	app, err := firebase.NewApp(ctx, nil, GetOption())
 	if err != nil {

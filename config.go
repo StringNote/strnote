@@ -18,7 +18,7 @@ func getConfig(r *http.Request) (*Config, error) {
 		return conf, nil
 	}
 	// Firestore から設定読み込み
-	confstr, err := getValue(r, confPRE+"Config")
+	confstr, err := ds.GetValue(r, confPRE+"Config")
 	if err == nil {
 		var c Config
 		if err := json.Unmarshal([]byte(confstr), &c); err == nil {

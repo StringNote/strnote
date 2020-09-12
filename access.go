@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/StringNote/strnote/util"
 )
 
 var accmu sync.Mutex
@@ -15,7 +17,7 @@ func addAccess(r *http.Request) int {
 
 	// 現在時間
 	UTC := time.Now().UTC()
-	UTCstr := time2ymdhms(UTC)
+	UTCstr := util.Time2ymdhms(UTC)
 
 	// Access はアクセスカウンタです
 	type Access struct {
@@ -30,9 +32,9 @@ func addAccess(r *http.Request) int {
 	needsave := false
 	// アクセスカウント取得
 	const key = confPRE + "Access"
-	if jsonstr, err := getValue(r, key); err == nil {
+	if jsonstr, err := ds.GetValue(r, key); err == nil {
 		if err := json.Unmarshal([]byte(jsonstr), &access); err == nil {
-			if old, err := ymdhms2time(access.UTC); err == nil {
+			if old, err := util.Ymdhms2time(access.UTC); err == nil {
 				dur := UTC.Sub(old)
 				if dur.Minutes() > 10 {
 					// 10分経過したのでセーブ予定
@@ -47,25 +49,24 @@ func addAccess(r *http.Request) int {
 	// バイト変換
 	bytes, err := json.Marshal(&access)
 	if err != nil {
-		logOutput(err.Error())
+		util.LogOutput(err.Error())
 		return access.Count
 	}
 
 	// キャッシュに保存
 	jsonstr := string(bytes)
-	setMapcache(key, jsonstr)
-	err = setMemcache(r, key, bytes)
+	err = ds.SetValueCache(r, key, jsonstr)
 	if err != nil {
-		logOutput(err.Error())
+		util.LogOutput(err.Error())
 		return access.Count
 	}
 
 	if needsave {
 		// 10分経過していたのでFirestoreに記録
-		err := setFirestore(key, jsonstr)
+		err := ds.SetValue(r, key, jsonstr)
 		if err != nil {
-			logOutput(jsonstr)
-			logOutput(err.Error())
+			util.LogOutput(jsonstr)
+			util.LogOutput(err.Error())
 		}
 	}
 	return access.Count

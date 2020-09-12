@@ -7,40 +7,47 @@ import (
 	"github.com/StringNote/strnote/util"
 )
 
-var fs *firebase.Collection
+// DataStore はデータを管理します。
+type DataStore struct {
+	name string
+	fs   *firebase.Collection
+}
 
-func init() {
-	fs = firebase.NewCollection("Data")
+// NewDataStore は DataStore を生成します。
+func NewDataStore(name string) *DataStore {
+	return &DataStore{name: name + "/", fs: firebase.NewCollection(name)}
 }
 
 // SetValueCache はキーに対する値を記録します。
-func SetValueCache(r *http.Request, key, value string) error {
-	err := setMemcache(r, key, []byte(value))
+func (d *DataStore) SetValueCache(r *http.Request, key, value string) error {
+	cachekey := d.name + key
+	err := setMemcache(r, cachekey, []byte(value))
 	if err != nil {
 		util.LogOutput(err.Error())
 		return err
 	}
 
-	setMapcache(key, value)
+	setMapcache(cachekey, value)
 
 	return nil
 }
 
 // SetValue はキーに対する値を記録します。
-func SetValue(r *http.Request, key, value string) error {
+func (d *DataStore) SetValue(r *http.Request, key, value string) error {
 	// Firestore に書き込む
-	err := fs.Set(key, value)
+	err := d.fs.Set(key, value)
 	if err != nil {
 		util.LogOutput(err.Error())
 		return err
 	}
 
-	return SetValueCache(r, key, value)
+	return d.SetValueCache(r, key, value)
 }
 
 // GetValue はキーに対しての値を取得します。
-func GetValue(r *http.Request, key string) (string, error) {
-	value, err := getMapcache(key)
+func (d *DataStore) GetValue(r *http.Request, key string) (string, error) {
+	cachekey := d.name + key
+	value, err := getMapcache(cachekey)
 	if value != "" {
 		// キャッシュにあったので返す
 		return value, err
@@ -48,16 +55,16 @@ func GetValue(r *http.Request, key string) (string, error) {
 
 	// キャッシュを検索
 	// logOutput("memcache.Get")
-	value, err = getMemcache(r, key)
+	value, err = getMemcache(r, cachekey)
 	if value != "" {
 		// キャッシュにあったので返す
-		setMapcache(key, value)
+		setMapcache(cachekey, value)
 		return value, err
 	}
 
 	// キャッシュにないので Firestore から取得する
 	// logOutput("getFirestore")
-	value, err = fs.Get(key)
+	value, err = d.fs.Get(key)
 	if err != nil {
 		// Firestore にもなかった
 		util.LogOutput(err.Error())
@@ -65,9 +72,9 @@ func GetValue(r *http.Request, key string) (string, error) {
 	}
 
 	// キャッシュに書き込む
-	setMapcache(key, value)
+	setMapcache(cachekey, value)
 	// logOutput("memcache.Set")
-	err = setMemcache(r, key, []byte(value))
+	err = setMemcache(r, cachekey, []byte(value))
 	if err != nil {
 		util.LogOutput(err.Error())
 		return "", err
@@ -77,9 +84,10 @@ func GetValue(r *http.Request, key string) (string, error) {
 }
 
 // DeleteValue はキーのデータを削除します。
-func DeleteValue(r *http.Request, key string) error {
-	deleteMapcache(key)
-	deleteMemcache(r, key)
-	fs.Delete(key)
+func (d *DataStore) DeleteValue(r *http.Request, key string) error {
+	cachekey := d.name + key
+	deleteMapcache(cachekey)
+	deleteMemcache(r, cachekey)
+	d.fs.Delete(key)
 	return nil
 }

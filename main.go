@@ -8,6 +8,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/StringNote/strnote/datastore"
+	"github.com/StringNote/strnote/firebase"
+	"github.com/StringNote/strnote/util"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"google.golang.org/appengine"
@@ -26,10 +29,13 @@ const (
 var (
 	proccesing map[string]bool
 	mu         sync.Mutex
+	ds         *datastore.DataStore
 )
 
 func main() {
 	proccesing = map[string]bool{}
+	ds = datastore.NewDataStore("Data")
+
 	echoInst := echo.New()
 	// CORS対応 (XMLHttpRequest で GET したときに、単純リクエストなのになぜかクロスサイトアクセスが必要)
 	echoInst.Use(middleware.CORS())
@@ -61,7 +67,7 @@ func topPage(c echo.Context) error {
 		Acc string
 	}
 	param := SignParam{
-		Acc: comma(addAccess(c.Request())),
+		Acc: util.Comma(addAccess(c.Request())),
 	}
 	return templateRender(http.StatusOK, "sign", param, c)
 }
@@ -71,7 +77,7 @@ func getAPI(c echo.Context) error {
 	uid := c.Param("uid")
 	note, err := getNote(c, uid)
 	if err != nil {
-		logOutput(err.Error())
+		util.LogOutput(err.Error())
 	}
 	// 応答
 	type GetParam struct {
@@ -100,7 +106,7 @@ func getAPI2(c echo.Context) error {
 	uid := c.Param("uid")
 	note, err := getNote(c, uid)
 	if err != nil {
-		logOutput(err.Error())
+		util.LogOutput(err.Error())
 	}
 	// 応答
 	return c.JSON(http.StatusOK, note)
@@ -116,7 +122,7 @@ func listAPI2(c echo.Context) error {
 		// 処理中にまた来た
 		// 不正なリクエストとしてエラー
 		mes := "processing"
-		logOutput(mes)
+		util.LogOutput(mes)
 		return c.String(http.StatusBadRequest, mes)
 	}
 	// → 処理中
@@ -160,7 +166,7 @@ func updateAPI(c echo.Context) error {
 		// 処理中にまた来た
 		// 不正なリクエストとしてエラー
 		mes := "processing"
-		logOutput(mes)
+		util.LogOutput(mes)
 		return c.String(http.StatusBadRequest, mes)
 	}
 	// → 処理中
@@ -179,15 +185,15 @@ func updateAPI(c echo.Context) error {
 	if reqToken == "" {
 		// 不正なリクエスト
 		mes := "need header X-Requested-With"
-		logOutput(mes)
+		util.LogOutput(mes)
 		return c.String(http.StatusBadRequest, mes)
 	}
 
 	// トークンの認可
-	resToken, err := verifyUser(c.Response().Writer, reqToken)
+	resToken, err := firebase.VerifyUser(c.Response().Writer, reqToken)
 	if err != nil {
 		// 認可失敗
-		logOutput(err.Error())
+		util.LogOutput(err.Error())
 		// 連打防止対策 (総当たり攻撃)としてレスポンスに10秒のペナルティ
 		// ペナルティ中に同じリモートから再POSTされるとエラーで返している
 		time.Sleep(time.Duration(10) * time.Second)
@@ -217,16 +223,16 @@ func updateAPI(c echo.Context) error {
 		if bad {
 			// 不正なリクエスト
 			mes := "bad header " + optHeader
-			logOutput(mes)
-			logOutput(optJSON)
+			util.LogOutput(mes)
+			util.LogOutput(optJSON)
 			return c.String(http.StatusBadRequest, mes)
 		}
 	}
 
 	// ノートを保存
 	uid := convertUID(c.Request(), opt+resToken.UID)
-	name := strcat(c.FormValue("name"), maxNameLength)
-	mes := strcat(c.FormValue("mes"), maxMesLength)
+	name := util.Strcat(c.FormValue("name"), maxNameLength)
+	mes := util.Strcat(c.FormValue("mes"), maxMesLength)
 	setNote(c, uid, name, mes)
 
 	// レスポンス
@@ -254,7 +260,7 @@ func deleteAPI(c echo.Context) error {
 		// 処理中にまた来た
 		// 不正なリクエストとしてエラー
 		mes := "processing"
-		logOutput(mes)
+		util.LogOutput(mes)
 		return c.String(http.StatusBadRequest, mes)
 	}
 	// → 処理中
@@ -273,15 +279,15 @@ func deleteAPI(c echo.Context) error {
 	if reqToken == "" {
 		// 不正なリクエスト
 		mes := "need header X-Requested-With"
-		logOutput(mes)
+		util.LogOutput(mes)
 		return c.String(http.StatusBadRequest, mes)
 	}
 
 	// トークンの認可
-	resToken, err := verifyUser(c.Response().Writer, reqToken)
+	resToken, err := firebase.VerifyUser(c.Response().Writer, reqToken)
 	if err != nil {
 		// 認可失敗
-		logOutput(err.Error())
+		util.LogOutput(err.Error())
 		// 連打防止対策 (総当たり攻撃)としてレスポンスに10秒のペナルティ
 		// ペナルティ中に同じリモートから再POSTされるとエラーで返している
 		time.Sleep(time.Duration(10) * time.Second)
@@ -297,7 +303,7 @@ func deleteAPI(c echo.Context) error {
 	uid := convertUID(c.Request(), resToken.UID)
 	deleteNote(c, uid)
 	// Firebase Authentication で記録されているユーザ情報
-	deleteUser(c.Response().Writer, resToken)
+	firebase.DeleteUser(c.Response().Writer, resToken)
 
 	// レスポンス
 	type RetParam struct {
