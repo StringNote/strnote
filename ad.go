@@ -83,7 +83,7 @@ func getAdParam(c echo.Context, ads *datastore.DataStore, adkeys []string, reqsi
 			return ret
 		}
 		if html != "" {
-			elem := strings.Split("\"", html)
+			elem := strings.Split(html, "\"")
 			if len(elem) > 1 && elem[1] != "" {
 				// ...."xxxxxxx".... の xxxxxxx
 				keys[key] = elem[1]
