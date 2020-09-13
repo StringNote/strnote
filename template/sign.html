@@ -70,9 +70,15 @@
       </div>
     </div>
   </div>
-  <iframe src="https://strnote.com/ad" class="ad"></iframe>
-  <iframe src="https://strnote.com/ad" class="ad"></iframe>
-  <iframe src="https://strnote.com/ad" class="ad"></iframe>
+  <div class="ad">
+		{{range .Ad.Ad728}}
+		<iframe src="{{.URL}}" width="728" height="90" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
+		{{end}}
+    <br/>
+		{{range .Ad.Ad125}}
+		<iframe src="{{.URL}}" width="125" height="125" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
+		{{end}}
+  </div>
   <div id="login">
     <h2>Account login:</h2>
     <div id="firebaseui-auth-container"></div>
