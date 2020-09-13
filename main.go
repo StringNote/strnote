@@ -87,7 +87,7 @@ func adPage(c echo.Context) error {
 	cur := time.Now().UTC()
 	expr := true
 	// 広告キーリストを取得
-	adkeyjson, err := ds.GetValue(c.Request(), confPRE+"adkey")
+	adkeyjson, err := ds.Get(c.Request(), confPRE+"adkey")
 	if err == nil {
 		if err = json.Unmarshal([]byte(adkeyjson), &adkeys); err == nil {
 			// adkey をデコードできた
@@ -106,13 +106,13 @@ func adPage(c echo.Context) error {
 		adkeys.sdkeys = adds.Keys()
 		if bytes, err := json.Marshal(&adkeys); err == nil {
 			// キャッシュ保存
-			_ = ds.SetValueCache(c.Request(), confPRE+"adkey", string(bytes))
+			_ = ds.SetCache(c.Request(), confPRE+"adkey", string(bytes))
 		}
 	}
 	// ランダムに広告を選択
 	rand.Seed(cur.UnixNano())
 	key := adkeys.sdkeys[rand.Intn(len(adkeys.sdkeys))%len(adkeys.sdkeys)]
-	if html, err := adds.GetValue(c.Request(), key); err == nil {
+	if html, err := adds.Get(c.Request(), key); err == nil {
 		return c.HTML(http.StatusOK, html)
 	}
 	util.LogOutput(key)

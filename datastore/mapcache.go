@@ -1,6 +1,10 @@
 package datastore
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/StringNote/strnote/util"
+)
 
 var (
 	mapcache map[string]string
@@ -20,6 +24,14 @@ func setMapcache(key, value string) error {
 	return nil
 }
 
+func setMapcacheMap(key string, data map[string]string) error {
+	bytes, err := util.Map2BYTES(data)
+	if err != nil {
+		return err
+	}
+	return setMapcache(key, string(bytes))
+}
+
 func getMapcache(key string) (string, error) {
 	if mapcache == nil {
 		return "", NotMatchKey
@@ -28,6 +40,14 @@ func getMapcache(key string) (string, error) {
 		return val, nil
 	}
 	return "", NotMatchKey
+}
+
+func getMapcacheMap(key string) (map[string]string, error) {
+	val, err := getMapcache(key)
+	if err != nil {
+		return nil, err
+	}
+	return util.JSON2Map(val)
 }
 
 func deleteMapcache(key string) error {

@@ -7,6 +7,10 @@ import (
 	"github.com/StringNote/strnote/util"
 )
 
+const (
+	dataKey = "data"
+)
+
 // DataStore はデータを管理します。
 type DataStore struct {
 	name string
@@ -14,77 +18,106 @@ type DataStore struct {
 }
 
 // NewDataStore は DataStore を生成します。
-func NewDataStore(name string) *DataStore {
-	return &DataStore{name: name + "/", fs: firebase.NewCollection(name)}
+func NewDataStore(collectionname string) *DataStore {
+	return &DataStore{name: collectionname + "/", fs: firebase.NewCollection(collectionname)}
 }
 
-// SetValueCache はキーに対する値を記録します。
-func (d *DataStore) SetValueCache(r *http.Request, key, value string) error {
+// SetCacheMap はキーに対するマップを記録します。
+func (d *DataStore) SetCacheMap(r *http.Request, key string, data map[string]string) error {
 	cachekey := d.name + key
-	err := setMemcache(r, cachekey, []byte(value))
+	bytes, err := util.Map2BYTES(data)
 	if err != nil {
 		util.LogOutput(err.Error())
 		return err
 	}
 
-	setMapcache(cachekey, value)
+	err = setMemcache(r, cachekey, bytes)
+	if err != nil {
+		util.LogOutput(err.Error())
+		return err
+	}
+
+	setMapcache(cachekey, string(bytes))
 
 	return nil
 }
 
-// SetValue はキーに対する値を記録します。
-func (d *DataStore) SetValue(r *http.Request, key, value string) error {
+// SetCache はキーに対する値を記録します。
+func (d *DataStore) SetCache(r *http.Request, key, value string) error {
+	data := map[string]string{dataKey: value}
+	return d.SetCacheMap(r, key, data)
+}
+
+// SetMap はキーに対するマップを記録します。
+func (d *DataStore) SetMap(r *http.Request, key string, data map[string]string) error {
 	// Firestore に書き込む
-	err := d.fs.Set(key, value)
+	err := d.fs.SetMap(key, data)
 	if err != nil {
 		util.LogOutput(err.Error())
 		return err
 	}
-
-	return d.SetValueCache(r, key, value)
+	return d.SetCacheMap(r, key, data)
 }
 
-// GetValue はキーに対しての値を取得します。
-func (d *DataStore) GetValue(r *http.Request, key string) (string, error) {
+// Set はキーに対する値を記録します。
+func (d *DataStore) Set(r *http.Request, key, value string) error {
+	data := map[string]string{dataKey: value}
+	return d.SetMap(r, key, data)
+}
+
+// GetMap はキーに対してのマップを取得します。
+func (d *DataStore) GetMap(r *http.Request, key string) (map[string]string, error) {
 	cachekey := d.name + key
-	value, err := getMapcache(cachekey)
-	if value != "" {
+	data, err := getMapcacheMap(cachekey)
+	if len(data) != 0 {
 		// キャッシュにあったので返す
-		return value, err
+		return data, err
 	}
 
 	// キャッシュを検索
 	// logOutput("memcache.Get")
-	value, err = getMemcache(r, cachekey)
-	if value != "" {
+	data, err = getMemcacheMap(r, cachekey)
+	if len(data) != 0 {
 		// キャッシュにあったので返す
-		setMapcache(cachekey, value)
-		return value, err
+		setMapcacheMap(cachekey, data)
+		return data, err
 	}
 
 	// キャッシュにないので Firestore から取得する
 	// logOutput("getFirestore")
-	value, err = d.fs.Get(key)
+	data, err = d.fs.GetMap(key)
 	if err != nil {
 		// Firestore にもなかった
 		util.LogOutput(err.Error())
-		return "", err
+		return nil, err
 	}
 
 	// キャッシュに書き込む
-	setMapcache(cachekey, value)
+	setMapcacheMap(cachekey, data)
 	// logOutput("memcache.Set")
-	err = setMemcache(r, cachekey, []byte(value))
+	err = setMemcacheMap(r, cachekey, data)
 	if err != nil {
 		util.LogOutput(err.Error())
-		return "", err
+		return nil, err
 	}
 
-	return value, err
+	return data, err
 }
 
-// DeleteValue はキーのデータを削除します。
-func (d *DataStore) DeleteValue(r *http.Request, key string) error {
+// Get はキーに対しての値を取得します。
+func (d *DataStore) Get(r *http.Request, key string) (string, error) {
+	data, err := d.GetMap(r, key)
+	if err != nil {
+		return "", err
+	}
+	if val, ok := data[dataKey]; ok {
+		return val, nil
+	}
+	return "", NotMatchKey
+}
+
+// Delete はキーのデータを削除します。
+func (d *DataStore) Delete(r *http.Request, key string) error {
 	cachekey := d.name + key
 	deleteMapcache(cachekey)
 	deleteMemcache(r, cachekey)

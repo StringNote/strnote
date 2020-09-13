@@ -32,7 +32,7 @@ func addAccess(r *http.Request) int {
 	needsave := false
 	// アクセスカウント取得
 	const key = confPRE + "Access"
-	if jsonstr, err := ds.GetValue(r, key); err == nil {
+	if jsonstr, err := ds.Get(r, key); err == nil {
 		if err := json.Unmarshal([]byte(jsonstr), &access); err == nil {
 			if old, err := util.Ymdhms2time(access.UTC); err == nil {
 				dur := UTC.Sub(old)
@@ -55,7 +55,7 @@ func addAccess(r *http.Request) int {
 
 	// キャッシュに保存
 	jsonstr := string(bytes)
-	err = ds.SetValueCache(r, key, jsonstr)
+	err = ds.SetCache(r, key, jsonstr)
 	if err != nil {
 		util.LogOutput(err.Error())
 		return access.Count
@@ -63,7 +63,7 @@ func addAccess(r *http.Request) int {
 
 	if needsave {
 		// 10分経過していたのでFirestoreに記録
-		err := ds.SetValue(r, key, jsonstr)
+		err := ds.Set(r, key, jsonstr)
 		if err != nil {
 			util.LogOutput(jsonstr)
 			util.LogOutput(err.Error())

@@ -19,9 +19,9 @@ func NewCollection(collection string) *Collection {
 	return &Collection{collection: collection}
 }
 
-// Set は Collection に値を保存します。
-func (f *Collection) Set(key, value string) error {
-	util.LogOutput(fmt.Sprintf("key:%s, value:%s", key, value))
+// SetMap は Collection にマップを保存します。
+func (f *Collection) SetMap(key string, data map[string]string) error {
+	util.LogOutput(fmt.Sprintf("key:%s, value:%+v", key, data))
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	app, err := firebase.NewApp(ctx, nil, GetOption())
@@ -36,9 +36,6 @@ func (f *Collection) Set(key, value string) error {
 	}
 	defer client.Close()
 	// 書き出し
-	data := make(map[string]interface{})
-	data["data"] = value
-	util.LogOutput(fmt.Sprintf("%+v", data))
 	_, err = client.Collection(f.collection).Doc(key).Set(ctx, data)
 	if err != nil {
 		util.LogOutput(err.Error())
@@ -48,8 +45,15 @@ func (f *Collection) Set(key, value string) error {
 	return nil
 }
 
+// Set は Collection に値を保存します。
+func (f *Collection) Set(key, value string) error {
+	data := map[string]string{}
+	data["data"] = value
+	return f.SetMap(key, data)
+}
+
 // GetMap は生のドキュメントを取得します。
-func (f *Collection) GetMap(key string) (map[string]interface{}, error) {
+func (f *Collection) GetMap(key string) (map[string]string, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	app, err := firebase.NewApp(ctx, nil, GetOption())
@@ -70,13 +74,14 @@ func (f *Collection) GetMap(key string) (map[string]interface{}, error) {
 		return nil, err
 	}
 	data := dsnap.Data()
-	// ret := map[string]string{}
-	// for subkey, intr := range data {
-	// 	if value, ok := intr.(string); ok {
-	// 		ret[subkey] = value
-	// 	}
-	// }
-	return data, nil
+	// map[string]string マップへの変換
+	ret := map[string]string{}
+	for subkey, intr := range data {
+		if value, ok := intr.(string); ok {
+			ret[subkey] = value
+		}
+	}
+	return ret, nil
 }
 
 // Get は Collection でキーから値を検索します。
@@ -88,7 +93,7 @@ func (f *Collection) Get(key string) (string, error) {
 		return "", err
 	}
 	util.LogOutput(fmt.Sprintf("%+v", data))
-	if txt, ok := data["data"].(string); ok {
+	if txt, ok := data["data"]; ok {
 		util.LogOutput(fmt.Sprintf("return \"%s\"", txt))
 		return txt, nil
 	}

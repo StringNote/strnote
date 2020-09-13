@@ -23,7 +23,7 @@ func getNote(c echo.Context, uid string) (*Note, error) {
 		Mes:  "",
 		UTC:  "20200901000000",
 	}
-	if jsonstr, _ := ds.GetValue(c.Request(), uidPRE+uid); jsonstr != "" {
+	if jsonstr, _ := ds.Get(c.Request(), uidPRE+uid); jsonstr != "" {
 		err := json.Unmarshal([]byte(jsonstr), &data)
 		if err != nil {
 			util.LogOutput(jsonstr)
@@ -58,10 +58,10 @@ func setNote(c echo.Context, uid, name, mes string) error {
 	}
 	mesjson, _ := json.Marshal(data)
 	strjson := string(mesjson)
-	return ds.SetValue(c.Request(), uidPRE+uid, strjson)
+	return ds.Set(c.Request(), uidPRE+uid, strjson)
 }
 
 // ノートを削除
 func deleteNote(c echo.Context, uid string) error {
-	return ds.DeleteValue(c.Request(), uidPRE+uid)
+	return ds.Delete(c.Request(), uidPRE+uid)
 }

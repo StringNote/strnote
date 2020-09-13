@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/StringNote/strnote/util"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/memcache"
 )
@@ -18,6 +19,14 @@ func setMemcache(r *http.Request, key string, value []byte) error {
 	}
 	return memcache.Set(ctx, item)
 }
+func setMemcacheMap(r *http.Request, key string, data map[string]string) error {
+	bytes, err := util.Map2BYTES(data)
+	if err != nil {
+		return err
+	}
+	setMemcache(r, key, bytes)
+	return nil
+}
 
 // キャッシュから読み込む
 func getMemcache(r *http.Request, key string) (string, error) {
@@ -28,6 +37,13 @@ func getMemcache(r *http.Request, key string) (string, error) {
 		return string(item.Value), err
 	}
 	return "", err
+}
+func getMemcacheMap(r *http.Request, key string) (map[string]string, error) {
+	str, err := getMemcache(r, key)
+	if err != nil {
+		return nil, err
+	}
+	return util.JSON2Map(str)
 }
 
 // キャッシュから削除する
