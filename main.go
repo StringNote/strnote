@@ -76,6 +76,22 @@ func topPage(c echo.Context) error {
 	return templateRender(http.StatusOK, "sign", param, c)
 }
 
+// 広告確認ページ
+func adPage(c echo.Context) error {
+	// // TODO: CORS調査
+	// w := c.Response()
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
+	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	type SignParam struct {
+		Ad AdParam
+	}
+	param := SignParam{
+		// 広告
+		Ad: GetAllAdParam(c),
+	}
+	return templateRender(http.StatusOK, "ad", param, c)
+}
+
 // 取得 API
 func getAPI(c echo.Context) error {
 	uid := c.Param("uid")

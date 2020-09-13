@@ -111,3 +111,38 @@ func GetAdParam(c echo.Context) AdParam {
 	param.Ad125 = getAdParam(c, ad125ds, getAdkey(c, ad125ds, "125"), 5)
 	return param
 }
+
+// GetAllAdParam はテンプレートに渡すパラメータ情報を構築します。
+func GetAllAdParam(c echo.Context) AdParam {
+	param := AdParam{}
+	rand.Seed(time.Now().UnixNano())
+	param.Ad728 = listAll(c, ad728ds, getAdkey(c, ad728ds, "728"))
+	param.Ad125 = listAll(c, ad125ds, getAdkey(c, ad125ds, "125"))
+	return param
+}
+
+func listAll(c echo.Context, ads *datastore.DataStore, adkeys []string) []AdParamElem {
+	ret := []AdParamElem{}
+	size := len(adkeys)
+	for i := 0; i < size; i++ {
+		key := adkeys[i]
+		html, err := ads.Get(c.Request(), key)
+		if err != nil {
+			util.LogOutput(err.Error())
+			return ret
+		}
+		if html != "" {
+			elem := strings.Split(html, "\"")
+			if len(elem) > 1 && elem[1] != "" {
+				// ...."xxxxxxx".... の xxxxxxx
+				value := elem[1]
+				// 埋め込みタグからsrc=""の中身
+				ret = append(ret, AdParamElem{URL: value})
+			} else {
+				util.LogOutput(fmt.Sprintf("invalid ad data %s: %s", key, html))
+				continue
+			}
+		}
+	}
+	return ret
+}
