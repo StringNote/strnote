@@ -42,6 +42,8 @@ func main() {
 
 	// トップページ
 	echoInst.GET("/", topPage)
+	// 広告一覧ページ
+	echoInst.GET("/ad", adPage)
 	// 取得 API
 	echoInst.GET("/api/v1/:uid", getAPI)
 	echoInst.GET("/api/v2/:uid", getAPI2)
