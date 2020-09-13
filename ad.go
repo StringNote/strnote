@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"strings"
 	"time"
@@ -76,11 +77,19 @@ func getAdParam(c echo.Context, ads *datastore.DataStore, adkeys []string, reqsi
 	keys := map[string]string{}
 	for {
 		key := adkeys[rand.Intn(size)%size]
-		if html, err := ads.Get(c.Request(), key); err == nil && html != "" {
+		html, err := ads.Get(c.Request(), key)
+		if err != nil {
+			util.LogOutput(err.Error())
+			return ret
+		}
+		if html != "" {
 			elem := strings.Split("\"", html)
 			if len(elem) > 1 && elem[1] != "" {
 				// ...."xxxxxxx".... の xxxxxxx
 				keys[key] = elem[1]
+			} else {
+				util.LogOutput(fmt.Sprintf("invalid ad data %s: %s", key, html))
+				continue
 			}
 		}
 		if len(keys) >= reqsize {
@@ -99,6 +108,6 @@ func GetAdParam(c echo.Context) AdParam {
 	param := AdParam{}
 	rand.Seed(time.Now().UnixNano())
 	param.Ad728 = getAdParam(c, ad728ds, getAdkey(c, ad728ds, "728"), 1)
-	param.Ad125 = getAdParam(c, ad728ds, getAdkey(c, ad125ds, "125"), 5)
+	param.Ad125 = getAdParam(c, ad125ds, getAdkey(c, ad125ds, "125"), 5)
 	return param
 }
