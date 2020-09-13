@@ -100,12 +100,10 @@ h1 {
 
 .ad {
 	text-align: center;
-	font-size: 16pt;
-	font-family: serif;
 	background-color: wheat;
 	width: 750px;
-    height: 110px;
-	margin-left: 5px;
+	margin: 5px;
+	padding: 5px;
 }
 .button-align {
 	text-align: right;
