@@ -32,7 +32,9 @@
       (hereinafter referred to as "UID") provided at the time of registration.
     </div>
   </div>
+
   <span class="topic">early access version. (since 2020/09/01)</span><br />
+
   <div id="header">
     total access: <span id="access">{{.Acc}}</span><br />
     <a href="/static/view.html" target="viewer">viewer (HTML-API)</a>
@@ -40,6 +42,12 @@
     <a href="https://github.com/StringNote/strnote" target="github">source code</a>
     <a href="/static/privacy.html" target="privacy">Privacy Policy</a>
   </div>
+
+  <div id="login">
+    <h2>Account login:</h2>
+    <div id="firebaseui-auth-container"></div>
+  </div>
+
   <div id="update" class="hide">
     <div id="note-info">
       your ID:<br />
@@ -70,6 +78,7 @@
       </div>
     </div>
   </div>
+
   <div class="ad">
 		{{range .Ad.Ad728}}
 		<iframe src="{{.URL}}" width="728" height="90" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
@@ -80,10 +89,7 @@
     {{end}}
     <br/><a href="/ad">All Advertisings.</a>
   </div>
-  <div id="login">
-    <h2>Account login:</h2>
-    <div id="firebaseui-auth-container"></div>
-  </div>
+
   <div id="logout" class="hide">
     <h2>Account logout:</h2>
     <button type="button" id="btn-logout" class="stdbutton button-align">Logout from Account.</button>
