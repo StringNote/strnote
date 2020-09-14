@@ -119,12 +119,15 @@
     if (user) {
       // ログイン済み
       idToken = "";
-      // IDトークンを取得
-      getIdTokenPromise()
-        .then(function (token) {
-          idToken = token;
-          showUpdate();
-          setupNoteUpdate("", "");
+      refreshIdTokenPromise(user)
+        .then(function (info) {
+          // IDトークンを取得
+          getIdTokenPromise()
+            .then(function (token) {
+              idToken = token;
+              showUpdate();
+              setupNoteUpdate("", "");
+            });
         }).catch(function (error) {
           console.log(error);
         });

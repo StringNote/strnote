@@ -51,3 +51,39 @@ function uiStart(id) {
 	let ui = new firebaseui.auth.AuthUI(firebase.auth());
 	ui.start("#" + id, uiConfig);
 }
+
+function refreshIdTokenPromise(user) {
+	// https://firebase.google.com/docs/reference/rest/auth/#section-refresh-token
+	let apiURL = "https://securetoken.googleapis.com/v1/token?key=" + firebaseConfig.apiKey;
+    return new Promise(function (callback, onerror) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", apiURL, true);
+        xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                const info = {
+                    result: xhr.response,
+                    request: xhr
+                };
+                switch (xhr.status) {
+                    case 200:	// OK
+                        try {
+                            callback(info);
+                        } catch (e) {
+                            info.error = e;
+                            onerror(info);
+                        }
+                        break;
+
+                    default:
+                        onerror(info);
+                        break;
+                }
+            }
+		};
+		let param = new URLSearchParams();
+		param.Set("grant_type", "refresh_token");
+		param.Set("refresh_token", user.refreshToken);
+        xhr.send(param);
+    });
+}
