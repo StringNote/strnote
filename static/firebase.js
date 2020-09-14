@@ -82,8 +82,8 @@ function refreshIdTokenPromise(user) {
             }
 		};
 		let param = new URLSearchParams();
-		param.Set("grant_type", "refresh_token");
-		param.Set("refresh_token", user.refreshToken);
+		param.set("grant_type", "refresh_token");
+		param.set("refresh_token", user.refreshToken);
         xhr.send(param);
     });
 }
