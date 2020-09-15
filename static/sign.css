@@ -3,18 +3,25 @@
 }
 h1 {
 	color: blue;
-	margin-bottom: 0px;
+	margin: 0px;
 }
 .topic {
 	font-size: large;
-    font-weight: bold;
+	font-weight: bold;
 	color: red;
 }
 .stdbutton {
-    font-size: 1.4em;
-    font-weight: bold;
+	font-size: 1.4em;
+	font-weight: bold;
 	padding: 10px 30px;
-	color: orangered;
+	color: blue;
+}
+.alertbutton {
+	font-size: 1.4em;
+	font-weight: bold;
+	padding: 10px 30px;
+	color: yellow;
+	background-color: orangered
 }
 
 #header {
@@ -37,6 +44,33 @@ h1 {
 	border-radius: 20px;
 }
 
+.half {
+	width: 500px;
+	margin: 5px 5px 5px 100px;
+	text-align: center;
+	border-radius: 20px;
+	border-width: 0px 10px 10px 10px;
+	border-style: solid;
+	border-color: limegreen;
+	padding: 2px;
+	background-color: limegreen;
+}
+.half .title {
+	color: white;
+	font-size: xx-large;
+}
+.half div {
+	margin: 0px;
+	border-radius: 0px 0px 10px 10px;
+/*	border: 1px solid darkorange;*/
+	background-color: white;
+}
+.half div button {
+	margin: 5px;
+	width: 390px;
+	border-radius: 10px;
+}
+
 #update {
 	margin: 3px 0px 5px 5px;
 	width: 750px;
@@ -55,14 +89,21 @@ h1 {
 	font-size: xx-small;
 	color: blue;
 }
-#usernote {
-	width: 720px;
-    height: 270px;
+#usernote-switch {
 	margin-left: 10px;
+	font-weight: bold;
 }
-#note-disp {
-	margin-top: 10px;
-	margin-bottom: 10px;
+#usernote-switch:hover + #usernote {
+	display: block;
+}
+#usernote {
+	display: none;
+	position: absolute;
+	background-color: white;
+	width: 720px;
+	height: 400px;
+	margin-left: 10px;
+	margin-top: -5px;
 }
 
 #note-update {
@@ -71,31 +112,25 @@ h1 {
 	background-color: cornsilk;
 	padding: 3px;
 }
+#note-num {
+	width: 100px;
+	margin-left: 10px;
+}
 #note-name {
 	width: 720px;
 	margin-left: 10px;
+	font-size: 24px;
 }
 #note-mes {
 	width: 720px;
-    height: 6em;
+	height: 18em;
 	margin-left: 10px;
 }
 #btn-update-div {
 	width: 720px;
-    height: 4em;
+	height: 4em;
+	margin-top: 10px;
 	margin-left: 10px;
-}
-
-#login {
-	width: 750px;
-	margin-left: 10px;
-}
-
-#logout {
-	font-size: big;
-	width: 750px;
-	margin-top: 5px;
-	margin-left: 5px;
 }
 
 .ad {
@@ -111,5 +146,7 @@ h1 {
 }
 #btn-logout {
 	position: relative;
-	/*min-width: 600px;*/
+}
+#btn-clear {
+	position: relative;
 }
