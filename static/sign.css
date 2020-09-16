@@ -4,27 +4,36 @@
 h1 {
 	color: blue;
 	margin: 0px;
+	float:left;
 }
 .topic {
 	font-size: large;
 	font-weight: bold;
 	color: red;
 }
-.stdbutton {
+.dia-body button {
+	width: 400px;
+}
+.updatebutton {
 	font-size: 1.4em;
 	font-weight: bold;
 	padding: 10px 30px;
 	color: blue;
+	border-radius: 20px;
+}
+.loginbutton {
+	color: blue;
 }
 .alertbutton {
-	font-size: 1.4em;
-	font-weight: bold;
-	padding: 10px 30px;
 	color: yellow;
-	background-color: orangered
+	background-color: orangered;
 }
-
 #header {
+	margin: 5px;
+	width: 750px;
+	padding: 3px;
+}
+#info {
 	margin: 5px;
 	width: 750px;
 	padding: 3px;
@@ -32,16 +41,15 @@ h1 {
 #access {
 	color: blue;
 }
-#description-div {
-	margin: 5px;
-	width: 750px;
-}
 .description {
+	margin: 5px 0px 5px 5px;
+	width: 700px;
 	padding: 15px;
 	border: 10px solid darkorange;
 	background-color: papayawhip;
 	color: brown;
 	border-radius: 20px;
+	clear:left;
 }
 
 .half {
@@ -71,6 +79,21 @@ h1 {
 	border-radius: 10px;
 }
 
+.dia {
+	width: 500px;
+	margin: 5px 5px 5px 100px;
+	border-radius: 20px;
+	border-width: 0px 10px 10px 10px;
+	border-style: solid;
+	border-color: limegreen;
+	padding: 2px;
+	background-color: limegreen;
+}
+
+#login {
+	clear:left;
+}
+
 #update {
 	margin: 3px 0px 5px 5px;
 	width: 750px;
@@ -83,6 +106,7 @@ h1 {
 	border: 1px solid black;
 	background-color: aliceblue;
 	padding: 3px;
+	margin-top: 5px;
 }
 .span-small {
 	margin-left: 10px;
@@ -103,7 +127,7 @@ h1 {
 	width: 720px;
 	height: 400px;
 	margin-left: 10px;
-	margin-top: -5px;
+	margin-top: 10px;
 }
 
 #note-update {
@@ -111,6 +135,7 @@ h1 {
 	border: 1px solid crimson;
 	background-color: cornsilk;
 	padding: 3px;
+	border-radius: 20px;
 }
 #note-num {
 	width: 100px;
@@ -137,7 +162,7 @@ h1 {
 	text-align: center;
 	background-color: wheat;
 	width: 740px;
-	margin: 5px;
+	margin: 20px 5px 20px 5px;
 	padding: 5px;
 }
 .button-align {
