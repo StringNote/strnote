@@ -18,10 +18,10 @@ class Note {
 		return this;
 	}
 	Refresh() {
-		let note = this;
+		const note = this;
 		note.getNotePromise(this.uid)
 			.then(function (info) {
-				let obj = JSON.parse(info.result);
+				const obj = JSON.parse(info.result);
 				note.name = obj.name;
 				note.mes = obj.mes;
 				note.utc = obj.utc;
@@ -84,11 +84,9 @@ class Note {
 
 class Notes {
 	notes = [];
+	notedic = {};
 	onError = error => { console.log(error); };
 	timer;
-	constructor() {
-		return this;
-	}
 	setInterval(interval) {
 		if (this.timer) {
 			clearInterval(this.timer);
@@ -99,24 +97,26 @@ class Notes {
 		}
 	}
 	Add(uid, handle) {
-		let note = new Note(this, uid, handle);
+		const note = new Note(this, uid, handle);
+		this.notedic[uid] = note;
 		this.notes.push(note);
 		return note;
 	}
+	Get(uid) {
+		return this.notedic[uid];
+	}
 	Refresh() {
-		let onError = this.onError;
-		let uids = [];
-		for (i in notes) {
-			uids.push(notes[i].uid);
-		}
+		const onError = this.onError;
+		const notedic = this.notedic;
+		const uids = this.notes.map(note => note.uid);
 		this.listUTCPromise(uids)
 			.then(function (info, result) {
-				let cutcs = JSON.parse(info.result)
+				const cutcs = JSON.parse(info.result)
 				Object.keys(cutcs).forEach(uid => {
-					let utc = cutcs[uid];
-					let note = notes[uid];
+					const utc = cutcs[uid];
+					const note = notedic[uid];
 					if (utc != note.utc) {
-						note.Get();
+						note.Refresh();
 					}
 				});
 			}).catch(function (error) {
