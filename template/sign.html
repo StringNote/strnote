@@ -3,21 +3,21 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <title>StringNote</title>
-  <link rel="icon" href="/static/favicon.ico">
-  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.3.0/firebase-ui-auth.css" />
-  <link type="text/css" rel="stylesheet" href="/static/sign.css" />
+	<meta charset="utf-8">
+	<title>StringNote</title>
+	<link rel="icon" href="./static/favicon.ico">
+	<link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.3.0/firebase-ui-auth.css" />
+	<link type="text/css" rel="stylesheet" href="./static/sign.css" />
 
-  <!-- The core Firebase JS SDK is always required and must be listed first -->
-  <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
-  <!-- Add SDKs for Firebase products that you want to use
+	<!-- The core Firebase JS SDK is always required and must be listed first -->
+	<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+	<!-- Add SDKs for Firebase products that you want to use
 	 https://firebase.google.com/docs/web/setup#available-libraries -->
-  <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/ui/4.3.0/firebase-ui-auth__ja.js"></script>
-  <script src="static/firebase.js"></script>
-  <script src="static/send.js"></script>
-  <script src="static/clear.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/ui/4.3.0/firebase-ui-auth__ja.js"></script>
+	<script src="./static/firebase.js"></script>
+	<script src="./static/send.js"></script>
+	<script src="./static/clear.js"></script>
 </head>
 
 
@@ -61,233 +61,237 @@
 			}
 		};
 	};
-	</script>
-	
-	
-	<body>
-	<script>
-	</script>
-		<div id="header">
-			<h1 id="title">Welcome to StringNote.</h1>
-			<div id="logout" style="text-align: center; padding: 5px;">
-				<button type="button" id="btn-logout" class="loginbutton">Logout from Account.</button>
-				<button type="button" id="btn-clear" class="alertbutton">Delete Account.</button>
+</script>
+
+
+<body>
+	<div id="header">
+		<h1 id="title">Welcome to StringNote.</h1>
+		<div id="logout" style="text-align: center; padding: 5px;">
+			<button type="button" id="btn-logout" class="loginbutton">Logout from Account.</button>
+			<button type="button" id="btn-clear" class="alertbutton">Delete Account.</button>
+		</div>
+	</div>
+	<div id="login">
+		<div id="firebaseui-auth-container"></div>
+	</div>
+	<div id="description" class="description">
+		This service allows you to publish your notes.<br />
+		No user registration is required.
+		Log in with Google and so on.
+	</div>
+
+	<div id="update" class="hide">
+		<div id="note-update">
+			<fieldset id="note-radio" style="border: 0px; margin: 0px; padding: 5px 0px 0px 10px;">
+				<input id="item-1" name="note-num" class="radio-input" type="radio" value="0"
+					onchange="radioChange('note-radio');" autocomplete="off" checked />
+				<label class="radio-label" for="item-1">note 1</label>
+				<input id="item-2" name="note-num" class="radio-input" type="radio" value="1"
+					onchange="radioChange('note-radio');" autocomplete="off" />
+				<label class="radio-label" for="item-2">note 2</label>
+				<input id="item-3" name="note-num" class="radio-input" type="radio" value="2"
+					onchange="radioChange('note-radio');" autocomplete="off" />
+				<label class="radio-label" for="item-3">note 3</label>
+				<input id="item-4" name="note-num" class="radio-input" type="radio" value="3"
+					onchange="radioChange('note-radio');" autocomplete="off" />
+				<label class="radio-label" for="item-4">note 4</label>
+				&nbsp;&nbsp;&nbsp;<span id="note-description">(You can create up to four notes.)</span>
+			</fieldset>
+			<hr />
+			<span id="text-note-show">your note:</span>
+			<a href="javascript:void(0);" id="note-switch" onclick="switchDisplay('note-info');">show</a><br />
+			<div id="note-info" style="display: none;">
+				<span id="text-note-id">your note ID:</span><br />
+				<span id="userid" class="span-small"></span><br />
+				<span id="text-note-url">your note URL:</span><br />
+				<span id="userlink" class="span-small"></span><br />
+				<span id="text-note-embedded">your note embedded:</span><br />
+				<span id="usertag" class="span-small"></span><br />
+				<iframe id="usernote"></iframe>
+			</div>
+			<span id="text-nickname">nickname</span>:<br />
+			<input type="text" id="note-name" autocomplete="on"></input><br />
+			<span id="text-message">message</span>:<br />
+			<textarea id="note-mes" autocomplete="on"></textarea><br />
+			<div id="btn-update-div" class="button-align">
+				<button type="button" id="btn-update" class="updatebutton">Update note.</button>
 			</div>
 		</div>
-		<div id="login">
-			<div id="firebaseui-auth-container"></div>
-		</div>
-		<div id="description" class="description">
-			This service allows you to publish your notes.<br/>
-			No user registration is required.
-			Log in with Google and so on.
-		</div>
-	
-		<div id="update" class="hide">
-			<div id="note-update">
-				<fieldset id="note-radio" style="border: 0px; margin: 0px; padding: 5px 0px 0px 10px;">
-					<input id="item-1" name="note-num" class="radio-input" type="radio" value="0" onchange="radioChange('note-radio');" autocomplete="off" checked/>
-					<label class="radio-label" for="item-1">note 1</label>
-					<input id="item-2" name="note-num" class="radio-input" type="radio" value="1" onchange="radioChange('note-radio');" autocomplete="off"/>
-					<label class="radio-label" for="item-2">note 2</label>
-					<input id="item-3" name="note-num" class="radio-input" type="radio" value="2" onchange="radioChange('note-radio');" autocomplete="off"/>
-					<label class="radio-label" for="item-3">note 3</label>
-					<input id="item-4" name="note-num" class="radio-input" type="radio" value="3" onchange="radioChange('note-radio');" autocomplete="off"/>
-					<label class="radio-label" for="item-4">note 4</label>
-					&nbsp;&nbsp;&nbsp;<span id="note-description">(You can create up to four notes.)</span>
-				</fieldset>
-				<hr/>
-				<span id="text-note-show">your note:</span>
-				<a href="javascript:void(0);" id="note-switch" onclick="switchDisplay('note-info');">show</a><br />
-				<div id="note-info" style="display: none;">
-					<span id="text-note-id">your note ID:</span><br />
-					<span id="userid" class="span-small"></span><br />
-					<span id="text-note-url">your note URL:</span><br />
-					<span id="userlink" class="span-small"></span><br />
-					<span id="text-note-embedded">your note embedded:</span><br />
-					<span id="usertag" class="span-small"></span><br />
-					<iframe id="usernote"></iframe>
-				</div>
-				<span id="text-nickname">nickname</span>:<br />
-				<input type="text" id="note-name" autocomplete="on"></input><br />
-				<span id="text-message">message</span>:<br />
-				<textarea id="note-mes" autocomplete="on"></textarea><br />
-				<div id="btn-update-div" class="button-align">
-					<button type="button" id="btn-update" class="updatebutton">Update note.</button>
-				</div>
-			</div>
-		</div>
-	
-		<div class="ad">
-			{{range .Ad.Ad728}}
-			<iframe src="{{.URL}}" width="728" height="90" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
-			{{end}}
-			<br/>
-			{{range .Ad.Ad125}}
-			<iframe src="{{.URL}}" width="125" height="125" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
-			{{end}}
-			<br/><a id="link-ad" href="/ad">All Advertisings.</a>
-		</div>
-	
-		<div id="info">
-			<span id="text-total">total access:</span> <span id="access">{{.Acc}}</span><br />
-			<a id="viewer-1" href="/static/view.html" target="viewer">viewer (HTML-API)</a>
-			<a id="viewer-2" href="/static/view4.html" target="viewer">viewer (JSON-API)</a>
-			<a id="sourcecode" href="https://github.com/StringNote/strnote" target="github">source code</a>
-			<a id="privacy" href="/static/privacy.html" target="privacy">Privacy Policy</a>
-		</div>
-	
-		<p>
-			Copyright (C) 2020- strnote.com [<a href="mailto:contact@strnote.com" target="mail">mail</a>]
-		</p>
-		<hr />
-		<h2 id="text-official-announcement">Official announcement NOTE:</h2>
-		<p>
-			<a href="https://strnote.com/api/v1/4B_4CSj0U_nhWa6YCbzB1w" target="notif">Open this note in a separate
-				window.</a><br />
-			<iframe src="https://strnote.com/api/v1/4B_4CSj0U_nhWa6YCbzB1w"
-				scrolling="no" style="border: 0px; width: 750px; height: 64em;"></iframe><br />
-		</p>
-	</body>
-	
-	<script>
-		easyi18n(transInit());
-	
-		// 認証トークン
-		var idToken = "";
-	
-		// 認証状態変更ハンドラ
-		onAuthStateChangedHandler = (user) => {
-			if (user) {
-				// ログイン済み
-				idToken = "";
-				refreshIdTokenPromise(user)
-					.then(function (info) {
-						// IDトークンを取得
-						getIdTokenPromise()
-							.then(function (token) {
-								idToken = token;
-								showUpdate();
-								setupNoteUpdate("", "");
-							});
-					}).catch(function (error) {
-						console.log(error);
-					});
-				showLogout();
-			} else {
-				// ログインしていない
-				showLogin();
-				uiStart('firebaseui-auth-container');
-			}
+	</div>
+
+	<div class="ad">
+		{{range .Ad.Ad728}}
+		<iframe src="{{.URL}}" loading="lazy" width="728" height="90" scrolling="no" border="0" marginwidth="0" style="border:none;"
+			frameborder="0"></iframe>
+		{{end}}
+		<br />
+		{{range .Ad.Ad125}}
+		<iframe src="{{.URL}}" loading="lazy" width="125" height="125" scrolling="no" border="0" marginwidth="0" style="border:none;"
+			frameborder="0"></iframe>
+		{{end}}
+		<br /><a id="link-ad" href="/ad">All Advertisings.</a>
+	</div>
+
+	<div id="info">
+		<span id="text-total">total access:</span> <span id="access">{{.Acc}}</span><br />
+		<a id="viewer-1" href="/static/view.html" target="viewer">viewer (HTML-API)</a>
+		<a id="viewer-2" href="/static/view4.html" target="viewer">viewer (JSON-API)</a>
+		<a id="sourcecode" href="https://github.com/StringNote/strnote" target="github">source code</a>
+		<a id="privacy" href="/static/privacy.html" target="privacy">Privacy Policy</a>
+	</div>
+
+	<p>
+		Copyright (C) 2020- strnote.com [<a href="mailto:contact@strnote.com" target="mail">mail</a>]
+	</p>
+	<hr />
+	<h2 id="text-official-announcement">Official announcement NOTE:</h2>
+	<p>
+		<a href="https://strnote.com/api/v1/4B_4CSj0U_nhWa6YCbzB1w" target="notif">Open this note in a separate
+			window.</a><br />
+		<iframe src="https://strnote.com/api/v1/4B_4CSj0U_nhWa6YCbzB1w" scrolling="no"
+			style="border: 0px; width: 750px; height: 64em;"></iframe><br />
+	</p>
+</body>
+
+<script>
+	easyi18n(transInit());
+
+	// 認証トークン
+	var idToken = "";
+
+	// 認証状態変更ハンドラ
+	onAuthStateChangedHandler = (user) => {
+		if (user) {
+			// ログイン済み
+			idToken = "";
+			refreshIdTokenPromise(user)
+				.then(function (info) {
+					// IDトークンを取得
+					getIdTokenPromise()
+						.then(function (token) {
+							idToken = token;
+							showUpdate();
+							setupNoteUpdate("", "");
+						});
+				}).catch(function (error) {
+					console.log(error);
+				});
+			showLogout();
+		} else {
+			// ログインしていない
+			showLogin();
+			uiStart('firebaseui-auth-container');
 		}
-	
-		// ログアウト処理実行
-		function logoutHandle() {
-			signOutPromise().then(() => {
-				showLogin();
-			}).catch((error) => {
-				alert(`ログアウトできませんでした(${error})`);
-			});
-		}
-		document.getElementById('btn-logout').addEventListener("click", logoutHandle);
-	
-		function switchDisplay(id) {
-			obj = document.getElementById(id).style;
-			obj.display = (obj.display=='none') ? 'block' : 'none';
-		}
-	
-		// ノート番号変更
+	}
+
+	// ログアウト処理実行
+	function logoutHandle() {
+		signOutPromise().then(() => {
+			showLogin();
+		}).catch((error) => {
+			alert(`ログアウトできませんでした(${error})`);
+		});
+	}
+	document.getElementById('btn-logout').addEventListener("click", logoutHandle);
+
+	function switchDisplay(id) {
+		obj = document.getElementById(id).style;
+		obj.display = (obj.display == 'none') ? 'block' : 'none';
+	}
+
+	// ノート番号変更
 	//	document.getElementById('note-num').addEventListener("change", () => {
 	//		changeNoteNum(document.getElementById('note-num').selectedIndex);
 	//	});
-		function radioChange(id) {
-			list = document.getElementById(id).getElementsByTagName("input");
-			let num = 0;
-			for (i=0; i<list.length; i++) {
-				let elem = list.item(i);
-				if (elem.checked) {
-					num = elem.value;
-				}
+	function radioChange(id) {
+		list = document.getElementById(id).getElementsByTagName("input");
+		let num = 0;
+		for (i = 0; i < list.length; i++) {
+			let elem = list.item(i);
+			if (elem.checked) {
+				num = elem.value;
 			}
-			changeNoteNum(num);
 		}
-	
-		// 更新処理実行
-		document.getElementById('btn-update').addEventListener("click", () => {
-			name = document.getElementById("note-name").value
-			mes = document.getElementById("note-mes").value
-			setupNoteUpdate(name, mes);
-		});
-	
-		// クリア処理実行
-		document.getElementById('btn-clear').addEventListener("click", () => {
-			if (!window.confirm("Your account will be deleted.\nCancel?")) {
-				if (!window.confirm("We can't get it back!!!!\nCancel?")) {
-					clearNoteUpdate();
-				}
+		changeNoteNum(num);
+	}
+
+	// 更新処理実行
+	document.getElementById('btn-update').addEventListener("click", () => {
+		name = document.getElementById("note-name").value
+		mes = document.getElementById("note-mes").value
+		setupNoteUpdate(name, mes);
+	});
+
+	// クリア処理実行
+	document.getElementById('btn-clear').addEventListener("click", () => {
+		if (!window.confirm("Your account will be deleted.\nCancel?")) {
+			if (!window.confirm("We can't get it back!!!!\nCancel?")) {
+				clearNoteUpdate();
 			}
-		});
-	
-		// ログイン操作部
-		function showLogin() {
-			optObj.num = 0;
-			document.getElementById('login').classList.remove("hide");
-			document.getElementById('logout').classList.add("hide");
-			hideUpdate();
 		}
-		function showLogout() {
-			document.getElementById('logout').classList.remove("hide");
-			document.getElementById('login').classList.add("hide");
-		}
-	
-		// 更新操作部
-		function showUpdate() {
-			document.getElementById('update').classList.remove("hide");
-		}
-		function hideUpdate() {
-			document.getElementById('update').classList.add("hide");
-		}
-	
-		// ノート表示の更新
-		function updateNoteInfo(id) {
-			var html = "<iframe src=\"/api/v1/" + id + "\"></iframe>";
-			var url = "https://strnote.com/api/v1/" + id;
-			document.getElementById('userid').innerHTML = "<code>" + id + "</code>";
-			document.getElementById('userlink').innerHTML = "<a href=\"" + url + "\" target=\"_new\">" + url + "</a>";
-			document.getElementById('usertag').innerHTML = "&lt;iframe src=\"" + url + "\"&gt;&lt;/iframe&gt;";
-			document.getElementById('usernote').outerHTML = "<iframe id=\"usernote\" src=\"" + url + "\"></iframe>";
-			//document.getElementById('usernote').contentDocument.location.replace(url);
-		}
-	
-		// 更新オプション
-		var optObj = { "num": 0 };
-		function changeNoteNum(num) {
-			optObj.num = Number(num);
-			setupNoteUpdate("", "");
-		}
-	
-		function setupNoteUpdate(name, mes) {
-			sendTokenPromise(idToken, name, mes, optObj)
-				.then(function (info, result) {
-					//console.log(info.result);
-					res = JSON.parse(info.result)
-					updateNoteInfo(res.uid);
-					document.getElementById('note-name').value = res.name;
-					document.getElementById('note-mes').value = res.mes;
-				}).catch(function (error) {
-					console.log(error);
-				});
-		}
-	
-		function clearNoteUpdate() {
-			clearTokenPromise(idToken)
-				.then(function (info, result) {
-					logoutHandle();
-				}).catch(function (error) {
-					console.log(error);
-				});
-		}
-	</script>
-	
-	</html>
-	{{end}}
+	});
+
+	// ログイン操作部
+	function showLogin() {
+		optObj.num = 0;
+		document.getElementById('login').classList.remove("hide");
+		document.getElementById('logout').classList.add("hide");
+		hideUpdate();
+	}
+	function showLogout() {
+		document.getElementById('logout').classList.remove("hide");
+		document.getElementById('login').classList.add("hide");
+	}
+
+	// 更新操作部
+	function showUpdate() {
+		document.getElementById('update').classList.remove("hide");
+	}
+	function hideUpdate() {
+		document.getElementById('update').classList.add("hide");
+	}
+
+	// ノート表示の更新
+	function updateNoteInfo(id) {
+		var html = "<iframe src=\"/api/v1/" + id + "\"></iframe>";
+		var url = "https://strnote.com/api/v1/" + id;
+		document.getElementById('userid').innerHTML = "<code>" + id + "</code>";
+		document.getElementById('userlink').innerHTML = "<a href=\"" + url + "\" target=\"_new\">" + url + "</a>";
+		document.getElementById('usertag').innerHTML = "&lt;iframe src=\"" + url + "\"&gt;&lt;/iframe&gt;";
+		document.getElementById('usernote').outerHTML = "<iframe id=\"usernote\" src=\"" + url + "\"></iframe>";
+		//document.getElementById('usernote').contentDocument.location.replace(url);
+	}
+
+	// 更新オプション
+	var optObj = { "num": 0 };
+	function changeNoteNum(num) {
+		optObj.num = Number(num);
+		setupNoteUpdate("", "");
+	}
+
+	function setupNoteUpdate(name, mes) {
+		sendTokenPromise(idToken, name, mes, optObj)
+			.then(function (info, result) {
+				//console.log(info.result);
+				res = JSON.parse(info.result)
+				updateNoteInfo(res.uid);
+				document.getElementById('note-name').value = res.name;
+				document.getElementById('note-mes').value = res.mes;
+			}).catch(function (error) {
+				console.log(error);
+			});
+	}
+
+	function clearNoteUpdate() {
+		clearTokenPromise(idToken)
+			.then(function (info, result) {
+				logoutHandle();
+			}).catch(function (error) {
+				console.log(error);
+			});
+	}
+</script>
+
+</html>
+{{end}}
