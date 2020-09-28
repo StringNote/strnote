@@ -120,6 +120,9 @@ h1 {
 #usernote-switch:hover + #usernote {
 	display: block;
 }
+#userid {
+	color: blue;
+}
 #usernote {
 	background-color: white;
 	width: 710px;

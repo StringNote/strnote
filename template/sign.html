@@ -18,17 +18,27 @@
 	<script src="./static/firebase.js"></script>
 	<script src="./static/send.js"></script>
 	<script src="./static/clear.js"></script>
+	<script src="./static/CompElem.js"></script>
 </head>
 
 
+<!-- ----------------------------------------------------------------------------------------------------
+  ■ 簡易多言語化
+ ---------------------------------------------------------------------------------------------------- -->
 <script>
 	function easyi18n(trans) {
 		let tr = trans[navigator.language];
 		if (tr) {
-			Object.keys(tr).forEach(id => {
-				elem = document.getElementById(id);
+			Object.keys(tr).forEach(key => {
+				const ids = key.split('.');
+				elem = document.getElementById(ids[0]);
 				if (elem) {
-					elem.innerHTML = tr[id];
+					const text = tr[key];
+					if (ids.length>1) {
+						elem.setAttribute(ids[1], text);
+					} else {
+						elem.innerHTML = text;
+					}
 				}
 			});
 		}
@@ -43,9 +53,11 @@
 				, "note-description": "(ノートは４個まで作成できます。)"
 				, "text-note-show": "公開しているノート:"
 				, "note-switch": "見る"
-				, "text-note-id": "ユーザ識別子:"
+				, "icondown": "クリックするとノートの情報が表示されます。"
+				, "text-note-id": "開く"
+				, "userid.popup": "ノートのユニークなIDです。"
 				, "text-note-url": "ノートのURL:"
-				, "text-note-embedded": "埋め込みタグ:"
+				, "text-note-embedded": "埋め込みタグ例:"
 				, "text-nickname": "表示名"
 				, "text-message": "本文"
 				, "btn-update": "ノート更新"
@@ -58,12 +70,277 @@
 				, "viewer-2": "JSON-API ビュアー"
 				, "sourcecode": "ソースコード(GitHub)"
 				, "privacy": "プライバシーポリシー"
+				, "remove-1.yes": "中止する"
+				, "remove-1.no": "いいえ"
+				, "remove-1.title": "全ノート消去確認 (1/2)"
+				, "remove-1.message": "あなたのアカウントの全ノートは削除されます。<br/>中止しませんか？"
+				, "remove-2.yes": "中止する"
+				, "remove-2.no": "いいえ"
+				, "remove-2.title": "全ノート消去確認 (2/2)"
+				, "remove-2.message": "もとに戻すことは不可能です。<br/>中止しませんか？"
 			}
 		};
 	};
 </script>
 
 
+<!-- ----------------------------------------------------------------------------------------------------
+  ■ ダウンアイコン
+	<icon-down color="blue" popup="ポップアップ"></icon-down>
+ ---------------------------------------------------------------------------------------------------- -->
+<template id="icon-down">
+	<style>
+		.wrapper {
+			position: relative;
+		}
+		.popup {
+			font-size: 0.8rem;
+			width: 200px;
+			border: 1px solid black;
+			padding: 10px;
+			background: white;
+			border-radius: 10px;
+			transition: 0.6s all;
+			position: absolute;
+			bottom: 3em;
+			left: 10px;
+			z-index: 3;
+
+			display: none;;
+		}
+		.icon:hover {
+			cursor: pointer;
+		}
+		.icon:hover + .popup {
+			display: inline-block;
+		}
+	</style>
+	<span class="wrapper">
+		<svg class="icon" width="16px" height="16px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+			<line x1="5" y1="5" x2="95" y2="5" stroke-width="10" stroke="white" stroke-linecap="round"/>
+			<polygon points="5,20 95,20 60,95 40,95" fill="white" stroke-linejoin="round"/>
+		</svg>
+		<span class="popup"></span>
+	</span>
+</template>
+<script>
+CompElem.Define("icon-down"
+	, class IconDown extends CompElem {
+		// 監視属性リスト
+		static _attributes = ["size", "color"];
+		// コンテンツ更新ハンドル
+		_updateContents() {
+			const that = this.shadowRoot;
+			// サイズ
+			const size = this.getAttribute("size");
+			if (size) {
+				const svg = that.querySelector("svg");
+				svg.setAttribute("width", size);
+				svg.setAttribute("height", size);
+			}
+			// 色
+			const color = this.getAttribute("color");
+			if (color) {
+				const polygon = that.querySelector("polygon");
+				polygon.setAttribute("fill", color);
+				const line = that.querySelectorAll("line");
+				line.forEach(function(elem) {
+					elem.setAttribute("stroke", color);
+				});
+			}
+			// ポップアップテキスト
+			that.querySelector(".popup").textContent = this.textContent;
+		}
+	}
+);
+</script>
+
+
+<!-- ----------------------------------------------------------------------------------------------------
+  ■ ポップアップスパン
+	<popup-span popup="ポップアップ">文字列</popup-span>
+ ---------------------------------------------------------------------------------------------------- -->
+<template id="popup-span">
+	<style>
+		.wrapper {
+			position: relative;
+		}
+		.popup {
+			font-size: 0.8rem;
+			width: 200px;
+			border: 1px solid black;
+			padding: 10px;
+			background: white;
+			border-radius: 10px;
+			transition: 0.6s all;
+			position: absolute;
+			bottom: 3em;
+			left: 10px;
+			z-index: 3;
+
+			display: none;;
+		}
+		.icon:hover + .popup {
+			display: inline-block;
+		}
+	</style>
+	<span class="wrapper">
+		<span class="icon"></span>
+		<span class="popup"></span>
+	</span>
+</template>
+<script>
+CompElem.Define("popup-span"
+	, class IconDown extends CompElem {
+		// 監視属性リスト
+		static _attributes = ["popup"];
+		// コンテンツ更新ハンドル
+		_updateContents() {
+			const that = this.shadowRoot;
+			// ポップアップテキスト
+			const popup = this.getAttribute("popup");
+			if (popup) {
+				that.querySelector(".popup").textContent = popup;
+			}
+			// 表示文字列
+			that.querySelector(".icon").innerHTML = this.innerHTML;
+		}
+	}
+);
+</script>
+
+
+
+<!-- ----------------------------------------------------------------------------------------------------
+	■ ダイアログ
+	<html-dialog class="dialog-1" yes="はい" no="いいえ" title="タイトル１" message="ダイアログ１"></html-dialog>
+ ---------------------------------------------------------------------------------------------------- -->
+<template id="html-dialog">
+	<style>
+	.dialog {
+		display:none;
+	}
+	.background {
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		width: 100%;
+		height: 100%;
+		background-color: #000000;
+		opacity: 0.6;
+		z-index: 9;
+	}
+	.window {
+		position: absolute;
+		left: 25%;
+		top: 25%;
+		width: 50%;
+/*		height: 200px;
+		margin-left: -150px;
+		margin-top: -100px;
+*/
+		background-color: #dddddd;
+		text-align: center;
+		border: solid 1px;
+		border-radius: 10px;
+		z-index: 10;
+	}
+	.title {
+		border-radius: 10px 10px 0px 0px;
+		background: black;
+		color: white;
+	}
+	.content {
+		text-align: left;
+		padding: 0em 3em 0px 3em;
+		border-radius: 0px 0px 10px 10px;
+		border-style: solid;
+		padding: 10px;
+	}
+	.buttons {
+		text-align: right;
+	}
+	</style>
+	<div class="dialog">
+		<div class="background"></div>
+		<div class="window">
+			<div class="title"></div>
+			<div class="content">
+				<div class="message"></div>
+				<div class="buttons">
+					<input class="yes" type="button" value="yes"/>
+					<input class="no" type="button" value="no"/>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+<script>
+CompElem.Define("html-dialog"
+	, class HtmlDialog extends CompElem {
+		static _attributes = ["yes", "no", "message"];
+		_updateContents() {
+			const that = this.shadowRoot;
+			that.querySelector(".yes").value = this.getAttribute("yes");
+			that.querySelector(".no").value = this.getAttribute("no");
+			that.querySelector(".message").innerHTML = this.getAttribute("message");
+			that.querySelector(".title").textContent = this.getAttribute("title");
+		}
+		constructor() {
+			super();
+			const that = this.shadowRoot;
+			that.querySelector(".yes").onclick = this.func.bind(this);
+			that.querySelector(".no").onclick = this.dialogHide.bind(this);
+			this.result = false;
+			this.defer = () => {};
+		}
+		func() {
+			this.result = true;
+			this.dialogHide();
+		}
+		dialogHide() {
+			const that = this.shadowRoot;
+			const dialog = that.querySelector(".dialog");
+			dialog.style.display = "none";
+			this.defer();
+			this.defer = () => {};
+
+			const body = document.body;
+			const scrollY = body.style.top;
+			body.style.position = '';
+			body.style.top = '';
+			body.style.height = '';
+			body.style.overflowY = '';
+			window.scrollTo(0, parseInt(scrollY || '0') * -1);
+		}
+		dialogShow() {
+			//document.getElementById('dialog').classList.add('show');
+			const scrollY = document.documentElement.style.getPropertyValue('--scroll-y');
+			const body = document.body;
+			body.style.position = 'fixed';
+			body.style.top = scrollY;
+			body.style.height = '100vh';
+			body.style.overflowY = 'hidden';
+
+			this.result = false;
+			const that = this.shadowRoot;
+			const dialog = that.querySelector(".dialog");
+			dialog.style.display = "block";
+			const target = this;
+			return new Promise(function (callback, onerror) {
+				target.defer = function() {
+					callback(target);
+				}
+			});
+		}
+	}
+);
+</script>
+
+
+<!-- ----------------------------------------------------------------------------------------------------
+  ■ HTML
+ ---------------------------------------------------------------------------------------------------- -->
 <body>
 	<div id="header">
 		<h1 id="title">Welcome to StringNote.</h1>
@@ -80,6 +357,8 @@
 		No user registration is required.
 		Log in with Google and so on.
 	</div>
+	<html-dialog id="remove-1" yes="YES" no="NO" title="remove note confirm (1/2)" message="Your account will be deleted.<br/>Cancel?"></html-dialog>
+	<html-dialog id="remove-2" yes="YES" no="NO" title="remove note confirm (2/2)" message="We can't get it back!!!!<br/>Cancel?"></html-dialog>
 
 	<div id="update" class="hide">
 		<div id="note-update">
@@ -99,14 +378,13 @@
 				&nbsp;&nbsp;&nbsp;<span id="note-description">(You can create up to four notes.)</span>
 			</fieldset>
 			<hr />
-			<span id="text-note-show">your note:</span>
-			<a href="javascript:void(0);" id="note-switch" onclick="switchDisplay('note-info');">show</a><br />
+			<span id="text-note-show">your note:</span> <popup-span id="userid" popup="The unique ID of the note."></popup-span><br />
+			　<span id="text-note-id">OPEN</span>: <popup-span id="userid" popup="The unique ID of the note."></popup-span>
+			<icon-down id="icondown" color="blue" onclick="switchDisplay('note-info');">Click to view information on the note</icon-down><br />
 			<div id="note-info" style="display: none;">
-				<span id="text-note-id">your note ID:</span><br />
-				<span id="userid" class="span-small"></span><br />
 				<span id="text-note-url">your note URL:</span><br />
 				<span id="userlink" class="span-small"></span><br />
-				<span id="text-note-embedded">your note embedded:</span><br />
+				<span id="text-note-embedded">Example of an embedded tag in your notes:</span><br />
 				<span id="usertag" class="span-small"></span><br />
 				<iframe id="usernote"></iframe>
 			</div>
@@ -149,7 +427,7 @@
 	<p>
 		<a href="https://strnote.com/api/v1/4B_4CSj0U_nhWa6YCbzB1w" target="notif">Open this note in a separate
 			window.</a><br />
-		<iframe src="https://strnote.com/api/v1/4B_4CSj0U_nhWa6YCbzB1w" scrolling="no"
+		<iframe src="https://strnote.com/api/v1/4B_4CSj0U_nhWa6YCbzB1w" loading="lazy" scrolling="no"
 			style="border: 0px; width: 750px; height: 64em;"></iframe><br />
 	</p>
 </body>
@@ -201,9 +479,6 @@
 	}
 
 	// ノート番号変更
-	//	document.getElementById('note-num').addEventListener("change", () => {
-	//		changeNoteNum(document.getElementById('note-num').selectedIndex);
-	//	});
 	function radioChange(id) {
 		list = document.getElementById(id).getElementsByTagName("input");
 		let num = 0;
@@ -225,11 +500,25 @@
 
 	// クリア処理実行
 	document.getElementById('btn-clear').addEventListener("click", () => {
-		if (!window.confirm("Your account will be deleted.\nCancel?")) {
-			if (!window.confirm("We can't get it back!!!!\nCancel?")) {
-				clearNoteUpdate();
+		const dialog1 = document.getElementById("remove-1");
+		const dialog2 = document.getElementById("remove-2");
+		dialog1.dialogShow()
+			.then(target => {
+				console.log(target);
+				if (!target.result) {
+					dialog2.dialogShow()
+						.then(target => {
+							console.log(target);
+							if (!target.result) {
+				eraseNoteExecute();
 			}
+						}).catch(function (error) {
+							console.log(error);
+						});
 		}
+			}).catch(function (error) {
+				console.log(error);
+			});
 	});
 
 	// ログイン操作部
@@ -256,11 +545,13 @@
 	function updateNoteInfo(id) {
 		var html = "<iframe src=\"/api/v1/" + id + "\"></iframe>";
 		var url = "https://strnote.com/api/v1/" + id;
-		document.getElementById('userid').innerHTML = "<code>" + id + "</code>";
+//		document.getElementById('userid').innerHTML = "<code>" + id + "</code>";
+		document.getElementById('userid').innerHTML = id;
 		document.getElementById('userlink').innerHTML = "<a href=\"" + url + "\" target=\"_new\">" + url + "</a>";
-		document.getElementById('usertag').innerHTML = "&lt;iframe src=\"" + url + "\"&gt;&lt;/iframe&gt;";
-		document.getElementById('usernote').outerHTML = "<iframe id=\"usernote\" src=\"" + url + "\"></iframe>";
+		document.getElementById('usertag').innerHTML = "&lt;iframe src=\"" + url + "\" loading=\"lazy\" scrolling=\"no\" style=\"border: 0px; width: 750px; height: 64em;\"&gt;&lt;/iframe&gt;";
+		// TODO: 二度目の更新が出来なかった
 		//document.getElementById('usernote').contentDocument.location.replace(url);
+		document.getElementById('usernote').outerHTML = "<iframe id=\"usernote\" src=\"" + url + "\" loading=\"lazy\"></iframe>";
 	}
 
 	// 更新オプション
@@ -274,16 +565,17 @@
 		sendTokenPromise(idToken, name, mes, optObj)
 			.then(function (info, result) {
 				//console.log(info.result);
-				res = JSON.parse(info.result)
-				updateNoteInfo(res.uid);
-				document.getElementById('note-name').value = res.name;
-				document.getElementById('note-mes').value = res.mes;
+				const note = JSON.parse(info.result)
+				updateNoteInfo(note.uid);
+				document.getElementById('note-name').value = note.name;
+				document.getElementById('note-mes').value = note.mes;
 			}).catch(function (error) {
 				console.log(error);
 			});
 	}
 
-	function clearNoteUpdate() {
+	// ノートの全削除
+	function eraseNoteExecute() {
 		clearTokenPromise(idToken)
 			.then(function (info, result) {
 				logoutHandle();

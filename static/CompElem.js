@@ -2,17 +2,13 @@
  * 簡易コンポーネント作成ユーティリティ
  * @licence MIT
  */
-class TinyComp extends HTMLElement {
+class CompElem extends HTMLElement {
 	// 表示更新メソッド
 	update() {
 		// スタイル定義の変更時の適用
 		let style = this._style;
-		if (style) {
-			let styleElem = this.shadowRoot.querySelector('style');
-			let cur = styleElem.textContent;
-			if (cur!=style) {
-				styleElem.textContent = style;
-			}
+		if (style && this.styleElem.textContent!=style) {
+			this.styleElem.textContent = style;
 		}
 		// コンテンツ更新ハンドルの実行
 		if (this._updateContents) {
@@ -30,18 +26,29 @@ class TinyComp extends HTMLElement {
 			shadow.appendChild(template.content.cloneNode(true));
 		} else {
 			// エレメント生成
-			shadow.appendChild(MakeElement(this._contents));
+			shadow.appendChild(this._contents);
 		}
 		// Style 生成
 		if (!shadow.querySelector('style')) {
 			shadow.appendChild(document.createElement('style'));
 		}
+		this.styleElem = shadow.querySelector('style');
 		// 初回更新
 		this.update();
-		// DOM 要素更新監視オブザーバ
-		this.observer = new MutationObserver(this._observed.bind(this));
-		this.observer.observe(this, {childList: true});
+		// DOM 要素更新監視オブザーバ接続
+		this._observConnect();
 	}
+	// DOM 接続イベント
+	connectedCallback() {
+		// DOM 要素更新監視オブザーバ接続
+		this._observConnect();
+	}
+	// DOM 切断イベント
+	disconnectedCallback() {
+		// DOM 要素更新監視オブザーバ解放
+		this._observDisconnect();
+	}
+
 	// 監視属性リストをマージして返す
 	static get observedAttributes() {
 		// クラスの _attributes を取得
@@ -55,6 +62,22 @@ class TinyComp extends HTMLElement {
 	attributeChangedCallback(name, oldValue, newValue) {
 		this.update();
 	}
+
+	// DOM 要素更新監視オブザーバ接続
+	_observConnect() {
+		if (!this._observer) {
+			this._observer = new MutationObserver(this._observed.bind(this));
+			this._observer.observe(this, {childList: true});
+		}
+	}
+	// DOM 要素更新監視オブザーバ解放
+	_observDisconnect() {
+		if (this._observer) {
+			this._observer.takeRecords();
+			this._observer.disconnect();
+			delete this._observer;
+		}
+	}
 	// DOM 要素更新イベント
 	_observed(mutations) {
 		if (mutations.length>0) {
@@ -67,32 +90,43 @@ class TinyComp extends HTMLElement {
 			}
 		}
 	}
-/*
-	// Class.tagName でタグ名を登録
-	// 関連付けの簡略化のため、テンプレートのIDと共用させる
-	//     → <template id="component-name">...</template>
-	static tagName = "component-name";
+
+	// コンポーネント登録
+	static Define(tagName, cls) {
+		// Class.tagName でタグ名を登録
+		// 関連付けの簡略化のため、テンプレートのIDと共用させる
+		//     → <template id="component-name">...</template>
+		cls.tagName = tagName;
+		customElements.define(tagName, cls);
+	};
+
+/** サブクラスで定義する項目
 
 	// スタイル定義
-	_style = "";
 	get _style() { return `...`; }
-	// コンテンツ定義 (tagName と同じIDのテンプレートが無い場合)
-	_contents = {tag: 'span', props:{textContent:""}, child:{tag: 'span', ...}};
+	// コンテンツ定義 (tagName と同じIDのテンプレートが無い場合にElementを生成して返す)
+	get _contents() {
+		return MakeElement({
+			tag: 'span', props:{textContent:""}
+			, child:{
+				tag: 'span', ...
+			}
+		});
+	}
 	// コンテンツ更新ハンドル
 	_updateContents() {}
 
-	// 監視属性リスト
+	// 監視属性リスト (<tag 属性="xxxx">)
 	static _attributes = [];
 
-	// DOM 接続イベント
-	connectedCallback() {}
-	// DOM 切断イベント
-	disconnectedCallback() {}
 	// ドキュメント移動イベント
 	adoptedCallback() {}
 */
 };
-// 独自表現のオブジェクトからコンテンツのエレメントを作成する。
+
+// --------------------------------------------------------------------------------
+// 独自表現のオブジェクトからコンテンツのエレメントを動的に作成するユーティリティ
+// --------------------------------------------------------------------------------
 function MakeElement(contents) {
 	if (!contents) {
 		const mes = "contents was undefined.";
@@ -126,7 +160,4 @@ function MakeElement(contents) {
 		}
 	}
 	return elem;
-};
-function ComponentDefine(cls) {
-	customElements.define(cls.tagName, cls);
 };
