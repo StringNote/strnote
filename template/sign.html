@@ -4,6 +4,13 @@
 
 <head>
 	<meta charset="utf-8">
+	<meta name="description" content="あなたのノートを公開できるサービスです。ユーザ登録不要。 Googleなどでログインしてください。">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<meta property="og:title" content="StringNote" />
+	<meta property="og:type" content="WEB service" />
+	<meta property="og:url" content="https://strnote.com" />
+	<meta property="og:site_name" content="StrNote.com" />
+	<meta property="og:description" content="あなたのノートを公開できるサービスです" />
 	<title>StringNote</title>
 	<link rel="icon" href="./static/favicon.ico">
 	<link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.3.0/firebase-ui-auth.css" />
@@ -28,6 +35,22 @@
 <script>
 	function easyi18n(trans) {
 		let tr = trans[navigator.language];
+		// override
+		const transjson = localStorage.getItem("stringnote.transration." + navigator.language);
+		if (transjson) {
+			const transObj = JSON.parse(transjson);
+			if (transObj) {
+				if (tr) {
+					Object.keys(tr).forEach(key => {
+						if (!transObj[key]) {
+							transObj[key] = tr[key];
+						}
+					});
+				}
+				tr = transObj;
+			}
+		}
+		// translation
 		if (tr) {
 			Object.keys(tr).forEach(key => {
 				const ids = key.split('.');
@@ -491,14 +514,14 @@ CompElem.Define("html-dialog"
 		changeNoteNum(num);
 	}
 
-	// 更新処理実行
+	// 更新処理実行ボタン
 	document.getElementById('btn-update').addEventListener("click", () => {
 		name = document.getElementById("note-name").value
 		mes = document.getElementById("note-mes").value
 		setupNoteUpdate(name, mes);
 	});
 
-	// クリア処理実行
+	// 全ノート削除処理実行ボタン
 	document.getElementById('btn-clear').addEventListener("click", () => {
 		const dialog1 = document.getElementById("remove-1");
 		const dialog2 = document.getElementById("remove-2");
@@ -510,7 +533,13 @@ CompElem.Define("html-dialog"
 						.then(target => {
 							console.log(target);
 							if (!target.result) {
-				eraseNoteExecute();
+								// 全ノート削除処理実行
+								clearTokenPromise(idToken)
+									.then(function (info, result) {
+										logoutHandle();
+									}).catch(function (error) {
+										console.log(error);
+									});
 			}
 						}).catch(function (error) {
 							console.log(error);
@@ -569,16 +598,6 @@ CompElem.Define("html-dialog"
 				updateNoteInfo(note.uid);
 				document.getElementById('note-name').value = note.name;
 				document.getElementById('note-mes').value = note.mes;
-			}).catch(function (error) {
-				console.log(error);
-			});
-	}
-
-	// ノートの全削除
-	function eraseNoteExecute() {
-		clearTokenPromise(idToken)
-			.then(function (info, result) {
-				logoutHandle();
 			}).catch(function (error) {
 				console.log(error);
 			});
