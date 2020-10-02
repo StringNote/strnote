@@ -203,12 +203,12 @@ CompElem.Define("icon-down"
 
 			display: none;;
 		}
-		.icon:hover + .popup {
+		.content:hover + .popup {
 			display: inline-block;
 		}
 	</style>
 	<span class="wrapper">
-		<span class="icon"></span>
+		<span class="content"></span>
 		<span class="popup"></span>
 	</span>
 </template>
@@ -226,7 +226,7 @@ CompElem.Define("popup-span"
 				that.querySelector(".popup").textContent = popup;
 			}
 			// 表示文字列
-			that.querySelector(".icon").innerHTML = this.innerHTML;
+			that.querySelector(".content").innerHTML = this.innerHTML;
 		}
 	}
 );
