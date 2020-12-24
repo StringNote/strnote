@@ -6,10 +6,15 @@ var (
 	opt option.ClientOption
 )
 
-// GetOption は admin.json を読んでOptionを生成します。
+// GetOption はOptionを生成します。(未設定の場合は admin.json を読みます)
 func GetOption() option.ClientOption {
 	if opt == nil {
-		opt = option.WithCredentialsFile("admin.json")
+		SetOption("admin.json")
 	}
 	return opt
+}
+
+// SetOption は firebase のオプションを設定します。
+func SetOption(credFile string) {
+	opt = option.WithCredentialsFile(credFile)
 }
